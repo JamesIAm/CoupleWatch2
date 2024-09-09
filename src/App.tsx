@@ -4,6 +4,7 @@ import { generateClient } from "aws-amplify/data";
 
 import { Authenticator } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
+import Search from "./components/Search";
 
 const client = generateClient<Schema>();
 
@@ -26,33 +27,8 @@ function App() {
 			{({ signOut }) => {
 				return (
 					<main>
-						<h1>My todos</h1>
-						<button onClick={createTodo}>+ new</button>
-						<ul>
-							{todos.map((todo) => (
-								<li key={todo.id}>{todo.content}</li>
-							))}
-						</ul>
-						<div>
-							🥳 App successfully hosted. Try creating a new todo.
-							<br />
-							<a href="https://docs.amplify.aws/react/start/quickstart/#make-frontend-updates">
-								Review next step of this tutorial.
-							</a>
-						</div>
+						<Search />
 						<button onClick={signOut}>Sign out</button>
-						<button
-							onClick={async () => {
-								let output = await client.queries.searchTvShows(
-									{
-										query: "loki",
-									}
-								);
-								console.log(output);
-							}}
-						>
-							Search
-						</button>
 					</main>
 				);
 			}}
