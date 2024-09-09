@@ -3,7 +3,7 @@ import { FormEvent, useState } from "react";
 import { Schema } from "../../amplify/data/resource";
 
 const client = generateClient<Schema>();
-const Search = () => {
+const SearchBar = () => {
 	const [searchTerm, setSearchTerm] = useState("");
 
 	const search = async (e: FormEvent<HTMLFormElement>) => {
@@ -28,4 +28,4 @@ const Search = () => {
 	);
 };
 
-export default Search;
+export default SearchBar;

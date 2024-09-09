@@ -1,6 +1,5 @@
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
-import { searchTvShows } from "../functions/search/resource";
-import { TvSearchResult } from "../functions/search/tvSearch";
+import { searchTvShows } from "../functions/searchTvShows/resource";
 
 /*== STEP 1 ===============================================================
 The section below creates a Todo database table with a "content" field. Try
