@@ -1,4 +1,5 @@
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
+import { searchTvShows } from "../functions/search/resource";
 
 /*== STEP 1 ===============================================================
 The section below creates a Todo database table with a "content" field. Try
@@ -12,6 +13,12 @@ const schema = a.schema({
 			content: a.string(),
 		})
 		.authorization((allow) => [allow.owner()]),
+	searchTvShows: a
+		.query()
+		.arguments({ query: a.string() })
+		.returns(a.string())
+		.handler(a.handler.function(searchTvShows))
+		.authorization((allow) => [allow.authenticated()]),
 });
 
 export type Schema = ClientSchema<typeof schema>;
