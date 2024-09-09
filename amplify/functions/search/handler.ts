@@ -25,7 +25,7 @@ export const handler: Schema["searchTvShows"]["functionHandler"] = async (
 		.then((response) => response.json())
 		.then((response) => {
 			console.log(response);
-			return JSON.stringify(response);
+			return response;
 		})
 		.catch((err) => {
 			console.error(err);

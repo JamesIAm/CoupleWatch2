@@ -1,5 +1,6 @@
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
 import { searchTvShows } from "../functions/search/resource";
+import { TvSearchResult } from "../functions/search/tvSearch";
 
 /*== STEP 1 ===============================================================
 The section below creates a Todo database table with a "content" field. Try
@@ -16,9 +17,32 @@ const schema = a.schema({
 	searchTvShows: a
 		.query()
 		.arguments({ query: a.string() })
-		.returns(a.string())
+		.returns(
+			a.customType({
+				page: a.integer(),
+				results: a.ref("TvShow").array(),
+				total_pages: a.integer(),
+				total_results: a.integer(),
+			})
+		)
 		.handler(a.handler.function(searchTvShows))
 		.authorization((allow) => [allow.authenticated()]),
+	TvShow: a.customType({
+		adult: a.boolean(),
+		backdrop_path: a.string(),
+		genre_ids: a.integer().array(),
+		id: a.integer(),
+		origin_country: a.string().array(),
+		original_language: a.string(),
+		original_name: a.string(),
+		overview: a.string(),
+		popularity: a.float(),
+		poster_path: a.string(),
+		first_air_date: a.string(),
+		name: a.string(),
+		vote_average: a.float(),
+		vote_count: a.integer(),
+	}),
 });
 
 export type Schema = ClientSchema<typeof schema>;
