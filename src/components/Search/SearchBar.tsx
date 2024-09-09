@@ -1,9 +1,16 @@
 import { generateClient } from "aws-amplify/api";
 import { FormEvent, useState } from "react";
-import { Schema } from "../../amplify/data/resource";
+import { Schema } from "../../../amplify/data/resource";
 
+type Props = {
+	setSearchResult: React.Dispatch<
+		React.SetStateAction<
+			Schema["searchTvShows"]["returnType"] | null | undefined
+		>
+	>;
+};
 const client = generateClient<Schema>();
-const SearchBar = () => {
+const SearchBar = (props: Props) => {
 	const [searchTerm, setSearchTerm] = useState("");
 
 	const search = async (e: FormEvent<HTMLFormElement>) => {
@@ -12,7 +19,7 @@ const SearchBar = () => {
 		let output = await client.queries.searchTvShows({
 			query: searchTerm,
 		});
-		console.log(output);
+		props.setSearchResult(output.data);
 	};
 	return (
 		<>

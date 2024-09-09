@@ -19,7 +19,7 @@ const schema = a.schema({
 		.returns(
 			a.customType({
 				page: a.integer(),
-				results: a.ref("TvShow").array(),
+				results: a.ref("TvShow").array().required(),
 				total_pages: a.integer(),
 				total_results: a.integer(),
 			})

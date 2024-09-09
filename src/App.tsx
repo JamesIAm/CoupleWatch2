@@ -4,7 +4,7 @@ import { generateClient } from "aws-amplify/data";
 
 import { Authenticator } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
-import SearchBar from "./components/Search";
+import Search from "./components/Search/Search";
 
 const client = generateClient<Schema>();
 
@@ -27,7 +27,7 @@ function App() {
 			{({ signOut }) => {
 				return (
 					<main>
-						<SearchBar />
+						<Search />
 						<button onClick={signOut}>Sign out</button>
 					</main>
 				);
