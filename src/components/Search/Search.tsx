@@ -1,23 +1,26 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import SearchBar from "./SearchBar";
 import { Schema } from "../../../amplify/data/resource";
 import { TvSearchResult, TvShow } from "./SearchResult";
+import TvShowListElement from "../TvShow/TvShowListElement";
 
 const Search = () => {
 	const [searchResults, setSearchResults] =
 		useState<Schema["searchTvShows"]["returnType"]>();
-	useEffect(() => {
-		if (searchResults?.results) {
-			let results = searchResults.results.forEach((a) => console.log(a));
-			// console.log(results);
-			results;
-		}
-	}, [searchResults]);
 
 	return (
 		<>
 			<SearchBar setSearchResult={setSearchResults} />
-			{searchResults?.results ? <> </> : <></>}
+			{searchResults?.results ? (
+				<ul>
+					{searchResults.results.map((result) => {
+						let tvShow = result as Schema["TvShow"]["type"];
+						return <TvShowListElement data={tvShow} />;
+					})}
+				</ul>
+			) : (
+				<></>
+			)}
 		</>
 	);
 };

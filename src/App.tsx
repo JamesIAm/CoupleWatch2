@@ -5,6 +5,7 @@ import { generateClient } from "aws-amplify/data";
 import { Authenticator } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
 import Search from "./components/Search/Search";
+import CurrentlyWatchingList from "./components/CurrentlyWatching/CurrentlyWatchingList";
 
 const client = generateClient<Schema>();
 
@@ -28,6 +29,7 @@ function App() {
 				return (
 					<main>
 						<Search />
+						<CurrentlyWatchingList />
 						<button onClick={signOut}>Sign out</button>
 					</main>
 				);

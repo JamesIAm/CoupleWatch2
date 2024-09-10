@@ -12,7 +12,6 @@ type Props = {
 const client = generateClient<Schema>();
 const SearchBar = (props: Props) => {
 	const [searchTerm, setSearchTerm] = useState("");
-
 	const search = async (e: FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		console.log(searchTerm);

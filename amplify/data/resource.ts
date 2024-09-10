@@ -13,6 +13,12 @@ const schema = a.schema({
 			content: a.string(),
 		})
 		.authorization((allow) => [allow.owner()]),
+	Watching: a
+		.model({
+			show: a.ref("TvShow"),
+			added: a.datetime(),
+		})
+		.authorization((allow) => [allow.owner()]),
 	searchTvShows: a
 		.query()
 		.arguments({ query: a.string() })
