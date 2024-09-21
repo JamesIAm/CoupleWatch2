@@ -1,7 +1,6 @@
 import { useState } from "react";
 import SearchBar from "./SearchBar";
 import { Schema } from "../../../amplify/data/resource";
-import { TvSearchResult, TvShow } from "./SearchResult";
 import TvShowListElement from "../TvShow/TvShowListElement";
 
 const Search = () => {

@@ -16,10 +16,14 @@ const TvShowListElement = ({ data }: Props) => {
 	);
 };
 const addWatchingRecord = (data: Schema["TvShow"]["type"]) => {
+	if (!data?.id) {
+		return false;
+	}
 	client.models.Watching.create({
 		show: data,
-		added: new Date().toLocaleString(),
-	});
+		mediaId: String(data.id),
+		mediaType: "TvShow",
+	}).then((result) => console.log(result));
 };
 
 export default TvShowListElement;

@@ -8,17 +8,14 @@ specifies that any user authenticated via an API key can "create", "read",
 "update", and "delete" any "Todo" records.
 =========================================================================*/
 const schema = a.schema({
-	Todo: a
-		.model({
-			content: a.string(),
-		})
-		.authorization((allow) => [allow.owner()]),
 	Watching: a
 		.model({
 			show: a.ref("TvShow"),
-			added: a.datetime(),
+			mediaType: a.enum(["TvShow"]),
+			mediaId: a.string().required(),
 		})
-		.authorization((allow) => [allow.owner()]),
+		.authorization((allow) => [allow.owner()])
+		.identifier(["mediaType", "mediaId"]),
 	searchTvShows: a
 		.query()
 		.arguments({ query: a.string() })
