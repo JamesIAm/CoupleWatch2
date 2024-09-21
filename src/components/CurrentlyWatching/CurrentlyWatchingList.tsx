@@ -1,14 +1,18 @@
 import { generateClient } from "aws-amplify/api";
-import React, { useState } from "react";
+import { useState } from "react";
 import { Schema } from "../../../amplify/data/resource";
 
-type Props = {};
-
-type Watching = Schema["Watching"]["type"];
+export type Watching = Schema["Watching"]["type"];
+type Props = {
+	setCurrentlyWatching: any;
+	currentlyWatching: Watching[];
+};
 
 const client = generateClient<Schema>();
-const CurrentlyWatchingList = (props: Props) => {
-	const [currentlyWatching, setCurrentlyWatching] = useState<Watching[]>();
+const CurrentlyWatchingList = ({
+	setCurrentlyWatching,
+	currentlyWatching,
+}: Props) => {
 	return (
 		<div>
 			<h1>CurrentlyWatchingList</h1>
@@ -29,6 +33,7 @@ const CurrentlyWatchingList = (props: Props) => {
 };
 
 const updateCurrentlyWatching = (setCurrentlyWatching: any) => {
+	console.log("Getting a list of shows currently being watched");
 	client.models.Watching.list().then((res) => {
 		console.log(res);
 		setCurrentlyWatching(res.data);

@@ -2,8 +2,11 @@ import { useState } from "react";
 import SearchBar from "./SearchBar";
 import { Schema } from "../../../amplify/data/resource";
 import TvShowListElement from "../TvShow/TvShowListElement";
+import { Watching } from "../CurrentlyWatching/CurrentlyWatchingList";
 
-const Search = () => {
+type Props = { watching: Watching[] };
+
+const Search = ({ watching }: Props) => {
 	const [searchResults, setSearchResults] =
 		useState<Schema["searchTvShows"]["returnType"]>();
 
@@ -14,7 +17,16 @@ const Search = () => {
 				<ul>
 					{searchResults.results.map((result) => {
 						let tvShow = result as Schema["TvShow"]["type"];
-						return <TvShowListElement data={tvShow} />;
+						const isBeingWatchedCurrently =
+							watching.filter(
+								(show) => show.mediaId === String(tvShow.id)
+							).length !== 0;
+						return (
+							<TvShowListElement
+								data={tvShow}
+								currentlyWatching={isBeingWatchedCurrently}
+							/>
+						);
 					})}
 				</ul>
 			) : (

@@ -11,11 +11,11 @@ const schema = a.schema({
 	Watching: a
 		.model({
 			show: a.ref("TvShow"),
-			mediaType: a.enum(["TvShow"]),
 			mediaId: a.string().required(),
 		})
-		.authorization((allow) => [allow.owner()])
-		.identifier(["mediaType", "mediaId"]),
+		.identifier(["mediaId"])
+		.authorization((allow) => [allow.owner()]),
+
 	searchTvShows: a
 		.query()
 		.arguments({ query: a.string() })
