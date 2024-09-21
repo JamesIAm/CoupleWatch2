@@ -1,8 +1,9 @@
 import { useState } from "react";
 import SearchBar from "./SearchBar";
 import { Schema } from "../../../amplify/data/resource";
-import TvShowListElement from "../TvShow/TvShowListElement";
+import TvShowAccordionItem from "../TvShow/TvShowListElement";
 import { Watching } from "../CurrentlyWatching/CurrentlyWatchingList";
+import { Accordion } from "@aws-amplify/ui-react";
 
 type Props = { watching: Watching[] };
 
@@ -13,25 +14,25 @@ const Search = ({ watching }: Props) => {
 	return (
 		<>
 			<SearchBar setSearchResult={setSearchResults} />
-			{searchResults?.results ? (
-				<ul>
-					{searchResults.results.map((result) => {
+			<Accordion.Container>
+				{searchResults?.results ? (
+					searchResults.results.map((result) => {
 						let tvShow = result as Schema["TvShow"]["type"];
 						const isBeingWatchedCurrently =
 							watching.filter(
 								(show) => show.mediaId === String(tvShow.id)
 							).length !== 0;
 						return (
-							<TvShowListElement
+							<TvShowAccordionItem
 								data={tvShow}
 								currentlyWatching={isBeingWatchedCurrently}
 							/>
 						);
-					})}
-				</ul>
-			) : (
-				<></>
-			)}
+					})
+				) : (
+					<></>
+				)}
+			</Accordion.Container>
 		</>
 	);
 };

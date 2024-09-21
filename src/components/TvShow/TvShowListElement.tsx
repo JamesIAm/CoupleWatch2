@@ -1,25 +1,34 @@
 import { generateClient } from "aws-amplify/api";
 import { Schema } from "../../../amplify/data/resource";
+import { Accordion } from "@aws-amplify/ui-react";
 
 type Props = {
 	data: Schema["TvShow"]["type"];
 	currentlyWatching: boolean;
 };
 const client = generateClient<Schema>();
-const TvShowListElement = ({ data, currentlyWatching }: Props) => {
+const TvShowAccordionItem = ({ data, currentlyWatching }: Props) => {
+	console.log(data);
 	return (
-		<li>
-			{data.name}
-			{currentlyWatching ? (
-				<button onClick={() => deleteWatchingRecord(data)}>
-					Stop watching
-				</button>
-			) : (
-				<button onClick={() => addWatchingRecord(data)}>
-					Start watching
-				</button>
-			)}
-		</li>
+		<Accordion.Item value={String(data.id)}>
+			<Accordion.Trigger>
+				{data.name} ({data.first_air_date?.substring(0, 4)})
+			</Accordion.Trigger>
+
+			<Accordion.Content>
+				{data.overview}
+				<br />
+				{currentlyWatching ? (
+					<button onClick={() => deleteWatchingRecord(data)}>
+						Stop watching
+					</button>
+				) : (
+					<button onClick={() => addWatchingRecord(data)}>
+						Start watching
+					</button>
+				)}
+			</Accordion.Content>
+		</Accordion.Item>
 	);
 };
 const addWatchingRecord = (data: Schema["TvShow"]["type"]) => {
@@ -61,4 +70,4 @@ const deleteWatchingRecord = (data: Schema["TvShow"]["type"]) => {
 	});
 };
 
-export default TvShowListElement;
+export default TvShowAccordionItem;
