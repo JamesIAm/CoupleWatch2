@@ -1,6 +1,5 @@
-import { generateClient } from "aws-amplify/api";
-import { useState } from "react";
 import { Schema } from "../../../amplify/data/resource";
+import TvShowAccordion from "../TvShow/TvShowAccordion";
 
 export type Watching = Schema["Watching"]["type"];
 type Props = {
@@ -14,13 +13,11 @@ const CurrentlyWatchingList = ({
 	return (
 		<div>
 			<h1>CurrentlyWatchingList</h1>
-			<ul>
-				{currentlyWatching
-					? currentlyWatching.map((show) => {
-							return <li>{show.show?.name}</li>;
-					  })
-					: ""}
-			</ul>
+			<TvShowAccordion
+				tvShows={currentlyWatching.map((watching) => watching.show)}
+				watching={currentlyWatching}
+				updateCurrentlyWatching={updateCurrentlyWatching}
+			/>
 		</div>
 	);
 };

@@ -1,42 +1,28 @@
 import { useState } from "react";
 import SearchBar from "./SearchBar";
 import { Schema } from "../../../amplify/data/resource";
-import TvShowAccordionItem from "../TvShow/TvShowListElement";
 import { Watching } from "../CurrentlyWatching/CurrentlyWatchingList";
-import { Accordion } from "@aws-amplify/ui-react";
+import TvShowAccordion from "../TvShow/TvShowAccordion";
 
 type Props = { watching: Watching[]; updateCurrentlyWatching: () => void };
-type TvShow = Schema["TvShow"]["type"];
+export type TvShow = Schema["TvShow"]["type"];
 
 const Search = ({ watching, updateCurrentlyWatching }: Props) => {
 	const [searchResults, setSearchResults] =
 		useState<Schema["searchTvShows"]["returnType"]>();
-
+	let asd = searchResults?.results;
 	return (
 		<>
 			<SearchBar setSearchResult={setSearchResults} />
-			<Accordion.Container>
-				{searchResults?.results ? (
-					(searchResults.results as TvShow[]).map((result) => {
-						let tvShow = result;
-						const isBeingWatchedCurrently =
-							watching.filter(
-								(show) => show.mediaId === String(tvShow.id)
-							).length !== 0;
-						return (
-							<TvShowAccordionItem
-								data={tvShow}
-								currentlyWatching={isBeingWatchedCurrently}
-								updateCurrentlyWatching={
-									updateCurrentlyWatching
-								}
-							/>
-						);
-					})
-				) : (
-					<></>
-				)}
-			</Accordion.Container>
+			<TvShowAccordion
+				tvShows={
+					searchResults?.results
+						? (searchResults.results as TvShow[])
+						: new Array<TvShow>()
+				}
+				watching={watching}
+				updateCurrentlyWatching={updateCurrentlyWatching}
+			/>
 		</>
 	);
 };

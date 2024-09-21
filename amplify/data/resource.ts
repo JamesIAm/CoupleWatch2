@@ -10,7 +10,7 @@ specifies that any user authenticated via an API key can "create", "read",
 const schema = a.schema({
 	Watching: a
 		.model({
-			show: a.ref("TvShow"),
+			show: a.ref("TvShow").required(),
 			mediaId: a.string().required(),
 		})
 		.identifier(["mediaId"])
