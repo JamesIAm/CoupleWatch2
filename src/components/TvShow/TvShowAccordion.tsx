@@ -19,14 +19,18 @@ const TvShowAccordion = ({
 		<Accordion.Container>
 			{tvShows.map((result) => {
 				let tvShow = result;
-				const isBeingWatchedCurrently =
-					watching.filter(
-						(show) => show.mediaId === String(tvShow.id)
-					).length !== 0;
+				const watchRecord = watching.filter(
+					(show) => show.mediaId === String(tvShow.id)
+				);
+				if (watchRecord.length > 1) {
+					throw new Error("More than one matching record");
+				}
 				return (
 					<TvShowAccordionItem
 						data={tvShow}
-						currentlyWatching={isBeingWatchedCurrently}
+						watchRecord={
+							watchRecord.length === 1 ? watchRecord[0] : null
+						}
 						updateCurrentlyWatching={updateCurrentlyWatching}
 					/>
 				);

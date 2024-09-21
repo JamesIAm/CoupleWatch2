@@ -1,16 +1,17 @@
 import { generateClient } from "aws-amplify/api";
 import { Schema } from "../../../amplify/data/resource";
 import { Accordion } from "@aws-amplify/ui-react";
+import { Watching } from "../CurrentlyWatching/CurrentlyWatchingList";
 
 type Props = {
 	data: Schema["TvShow"]["type"];
-	currentlyWatching: boolean;
+	watchRecord: Watching | null;
 	updateCurrentlyWatching: () => void;
 };
 const client = generateClient<Schema>();
 const TvShowAccordionItem = ({
 	data,
-	currentlyWatching,
+	watchRecord,
 	updateCurrentlyWatching,
 }: Props) => {
 	console.log(data);
@@ -71,7 +72,14 @@ const TvShowAccordionItem = ({
 			<Accordion.Content>
 				{data.overview}
 				<br />
-				{currentlyWatching ? (
+				{watchRecord ? (
+					<div>
+						Started: {watchRecord.createdAt}
+						<br />
+						Last update: {watchRecord.createdAt}
+					</div>
+				) : null}
+				{watchRecord ? (
 					<button onClick={() => deleteWatchingRecord(data)}>
 						Stop watching
 					</button>

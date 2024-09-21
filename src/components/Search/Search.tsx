@@ -10,7 +10,6 @@ export type TvShow = Schema["TvShow"]["type"];
 const Search = ({ watching, updateCurrentlyWatching }: Props) => {
 	const [searchResults, setSearchResults] =
 		useState<Schema["searchTvShows"]["returnType"]>();
-	let asd = searchResults?.results;
 	return (
 		<>
 			<SearchBar setSearchResult={setSearchResults} />
