@@ -13,15 +13,29 @@ const client = generateClient<Schema>();
 
 function App() {
 	const [currentlyWatching, setCurrentlyWatching] = useState<Watching[]>([]);
+	const updateCurrentlyWatching = () => {
+		console.log("Getting a list of shows currently being watched");
+		client.models.Watching.list().then((res) => {
+			console.log(res);
+			setCurrentlyWatching(res.data);
+		});
+	};
+	useEffect(() => {
+		updateCurrentlyWatching();
+	}, []);
+
 	return (
 		<Authenticator>
 			{({ signOut }) => {
 				return (
 					<main>
-						<Search watching={currentlyWatching} />
+						<Search
+							watching={currentlyWatching}
+							updateCurrentlyWatching={updateCurrentlyWatching}
+						/>
 						<CurrentlyWatchingList
 							currentlyWatching={currentlyWatching}
-							setCurrentlyWatching={setCurrentlyWatching}
+							updateCurrentlyWatching={updateCurrentlyWatching}
 						/>
 						<button onClick={signOut}>Sign out</button>
 					</main>

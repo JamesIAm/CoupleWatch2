@@ -5,10 +5,10 @@ import TvShowAccordionItem from "../TvShow/TvShowListElement";
 import { Watching } from "../CurrentlyWatching/CurrentlyWatchingList";
 import { Accordion } from "@aws-amplify/ui-react";
 
-type Props = { watching: Watching[] };
+type Props = { watching: Watching[]; updateCurrentlyWatching: () => void };
 type TvShow = Schema["TvShow"]["type"];
 
-const Search = ({ watching }: Props) => {
+const Search = ({ watching, updateCurrentlyWatching }: Props) => {
 	const [searchResults, setSearchResults] =
 		useState<Schema["searchTvShows"]["returnType"]>();
 
@@ -27,6 +27,9 @@ const Search = ({ watching }: Props) => {
 							<TvShowAccordionItem
 								data={tvShow}
 								currentlyWatching={isBeingWatchedCurrently}
+								updateCurrentlyWatching={
+									updateCurrentlyWatching
+								}
 							/>
 						);
 					})

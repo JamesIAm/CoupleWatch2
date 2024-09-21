@@ -5,10 +5,63 @@ import { Accordion } from "@aws-amplify/ui-react";
 type Props = {
 	data: Schema["TvShow"]["type"];
 	currentlyWatching: boolean;
+	updateCurrentlyWatching: () => void;
 };
 const client = generateClient<Schema>();
-const TvShowAccordionItem = ({ data, currentlyWatching }: Props) => {
+const TvShowAccordionItem = ({
+	data,
+	currentlyWatching,
+	updateCurrentlyWatching,
+}: Props) => {
 	console.log(data);
+	const addWatchingRecord = (data: Schema["TvShow"]["type"]) => {
+		if (!data?.id) {
+			return false;
+		}
+		console.log({
+			show: data,
+			mediaId: String(data.id),
+		});
+		client.models.Watching.create({
+			show: data,
+			mediaId: String(data.id),
+		}).then((result) => {
+			if (result.errors) {
+				result.errors.forEach((element) => {
+					console.log(element);
+				});
+			} else {
+				console.log(
+					`Successfully recorded ${data.name} as being watched`
+				);
+				updateCurrentlyWatching();
+			}
+		});
+	};
+
+	const deleteWatchingRecord = (data: Schema["TvShow"]["type"]) => {
+		if (!data?.id) {
+			return false;
+		}
+		console.log({
+			show: data,
+			mediaId: String(data.id),
+		});
+		client.models.Watching.delete({
+			mediaId: String(data.id),
+		}).then((result) => {
+			if (result.errors) {
+				result.errors.forEach((element) => {
+					console.log(element);
+				});
+			} else {
+				console.log(
+					`Successfully removed ${data.name} from being watched`
+				);
+				updateCurrentlyWatching();
+			}
+		});
+	};
 	return (
 		<Accordion.Item value={String(data.id)}>
 			<Accordion.Trigger>
@@ -30,44 +83,6 @@ const TvShowAccordionItem = ({ data, currentlyWatching }: Props) => {
 			</Accordion.Content>
 		</Accordion.Item>
 	);
-};
-const addWatchingRecord = (data: Schema["TvShow"]["type"]) => {
-	if (!data?.id) {
-		return false;
-	}
-	console.log({
-		show: data,
-		mediaId: String(data.id),
-	});
-	client.models.Watching.create({
-		show: data,
-		mediaId: String(data.id),
-	}).then((result) => {
-		if (result.errors) {
-			result.errors.forEach((element) => {
-				console.log(element);
-			});
-		}
-	});
-};
-
-const deleteWatchingRecord = (data: Schema["TvShow"]["type"]) => {
-	if (!data?.id) {
-		return false;
-	}
-	console.log({
-		show: data,
-		mediaId: String(data.id),
-	});
-	client.models.Watching.delete({
-		mediaId: String(data.id),
-	}).then((result) => {
-		if (result.errors) {
-			result.errors.forEach((element) => {
-				console.log(element);
-			});
-		}
-	});
 };
 
 export default TvShowAccordionItem;

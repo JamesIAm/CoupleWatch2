@@ -4,23 +4,16 @@ import { Schema } from "../../../amplify/data/resource";
 
 export type Watching = Schema["Watching"]["type"];
 type Props = {
-	setCurrentlyWatching: any;
 	currentlyWatching: Watching[];
+	updateCurrentlyWatching: () => void;
 };
-
-const client = generateClient<Schema>();
 const CurrentlyWatchingList = ({
-	setCurrentlyWatching,
 	currentlyWatching,
+	updateCurrentlyWatching,
 }: Props) => {
 	return (
 		<div>
 			<h1>CurrentlyWatchingList</h1>
-			<button
-				onClick={() => updateCurrentlyWatching(setCurrentlyWatching)}
-			>
-				Get currently watching
-			</button>
 			<ul>
 				{currentlyWatching
 					? currentlyWatching.map((show) => {
@@ -30,14 +23,6 @@ const CurrentlyWatchingList = ({
 			</ul>
 		</div>
 	);
-};
-
-const updateCurrentlyWatching = (setCurrentlyWatching: any) => {
-	console.log("Getting a list of shows currently being watched");
-	client.models.Watching.list().then((res) => {
-		console.log(res);
-		setCurrentlyWatching(res.data);
-	});
 };
 
 export default CurrentlyWatchingList;
