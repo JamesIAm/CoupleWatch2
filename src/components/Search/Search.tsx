@@ -6,6 +6,7 @@ import { Watching } from "../CurrentlyWatching/CurrentlyWatchingList";
 import { Accordion } from "@aws-amplify/ui-react";
 
 type Props = { watching: Watching[] };
+type TvShow = Schema["TvShow"]["type"];
 
 const Search = ({ watching }: Props) => {
 	const [searchResults, setSearchResults] =
@@ -16,8 +17,8 @@ const Search = ({ watching }: Props) => {
 			<SearchBar setSearchResult={setSearchResults} />
 			<Accordion.Container>
 				{searchResults?.results ? (
-					searchResults.results.map((result) => {
-						let tvShow = result as Schema["TvShow"]["type"];
+					(searchResults.results as TvShow[]).map((result) => {
+						let tvShow = result;
 						const isBeingWatchedCurrently =
 							watching.filter(
 								(show) => show.mediaId === String(tvShow.id)
