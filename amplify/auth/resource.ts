@@ -16,10 +16,12 @@ export const auth = defineAuth({
 			callbackUrls: [
 				"http://localhost:5173/profile",
 				"https://main.d3d1489tw602tv.amplifyapp.com/",
+				"https://couplewatch.nahajski.org/",
 			],
 			logoutUrls: [
 				"http://localhost:5173/",
 				"https://main.d3d1489tw602tv.amplifyapp.com/",
+				"https://couplewatch.nahajski.org/",
 			],
 		},
 	},
