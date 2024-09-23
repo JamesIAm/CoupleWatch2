@@ -1,5 +1,4 @@
 import { Accordion } from "@aws-amplify/ui-react";
-import React from "react";
 import TvShowAccordionItem from "./TvShowListElement";
 import { Watching } from "../CurrentlyWatching/CurrentlyWatchingList";
 import { TvShow } from "../Search/Search";
