@@ -16,7 +16,7 @@ const Search = ({ watching, updateCurrentlyWatching }: Props) => {
 			<TvShowAccordion
 				tvShows={
 					searchResults?.results
-						? (searchResults.results as TvShow[])
+						? (searchResults.results as unknown as TvShow[])
 						: new Array<TvShow>()
 				}
 				watching={watching}
