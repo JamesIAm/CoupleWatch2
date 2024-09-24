@@ -3,12 +3,14 @@ import { generateClient } from "aws-amplify/api";
 import { Schema } from "../../../amplify/data/resource";
 import { useState } from "react";
 import PartnerCard, { Pairing, Partner } from "./PartnerCard";
+import { AuthUser } from "aws-amplify/auth";
 
 type Props = {
 	addPartner: (partner: Partner) => void;
 	removePartner: (pairing: Pairing) => void;
 	partnerChangeLocks: string[];
 	currentPairings: Pairing[];
+	currentUser: AuthUser;
 };
 
 const client = generateClient<Schema>();
@@ -18,11 +20,14 @@ const PartnerSearch = ({
 	removePartner,
 	partnerChangeLocks,
 	currentPairings,
+	currentUser,
 }: Props) => {
 	const [searchedPartner, setSearchedPartner] = useState<Partner | undefined>(
 		undefined
 	);
+
 	console.log(searchedPartner);
+	console.log(currentPairings);
 	const searchForUser = (email: string) => {
 		client.queries.searchUser({ email: email }).then((res) => {
 			console.log(res);
@@ -52,7 +57,8 @@ const PartnerSearch = ({
 				onClear={() => setSearchedPartner(undefined)}
 				onChange={() => setSearchedPartner(undefined)}
 			/>
-			{searchedPartner ? (
+			{searchedPartner &&
+			searchedPartner.username !== currentUser.username ? (
 				<PartnerCard
 					partner={searchedPartner}
 					partnerChangeLocks={partnerChangeLocks}
