@@ -9,6 +9,7 @@ import CurrentlyWatchingList, {
 	Watching,
 } from "./components/CurrentlyWatching/CurrentlyWatchingList";
 import PartnerSearch from "./components/Partners/PartnerSearch";
+import PartnerManagement from "./components/Partners/PartnerManagement";
 
 const client = generateClient<Schema>();
 
@@ -38,7 +39,7 @@ function App() {
 							currentlyWatching={currentlyWatching}
 							updateCurrentlyWatching={updateCurrentlyWatching}
 						/>
-						<PartnerSearch />
+						<PartnerManagement />
 						<button onClick={signOut}>Sign out</button>
 					</main>
 				);

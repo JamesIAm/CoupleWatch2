@@ -1,41 +1,28 @@
-import { Button, Card, Loader, SearchField } from "@aws-amplify/ui-react";
+import { SearchField } from "@aws-amplify/ui-react";
 import { generateClient } from "aws-amplify/api";
 import { Schema } from "../../../amplify/data/resource";
 import { useState } from "react";
+import PartnerCard, { Partner } from "./PartnerCard";
 
-type Props = {};
-type SearchedUser = {
-	email: string;
-	username: string;
+type Props = {
+	addPartner: (partner: Partner) => void;
+	partnerChangeLocks: string[];
 };
 
 const client = generateClient<Schema>();
 
-const PartnerSearch = ({}: Props) => {
-	const [searchedUser, setSearchedUser] = useState<SearchedUser | undefined>(
+const PartnerSearch = ({ addPartner, partnerChangeLocks }: Props) => {
+	const [searchedPartner, setSearchedPartner] = useState<Partner | undefined>(
 		undefined
 	);
-	const [userLock, setUserLock] = useState<String[]>([]);
 	const searchForUser = (email: string) => {
 		client.queries.searchUser({ email: email }).then((res) => {
 			console.log(res);
 			if (res.data) {
-				setSearchedUser({ email: email, username: res.data });
+				setSearchedPartner({ email: email, username: res.data });
 			} else {
-				setSearchedUser(undefined);
+				setSearchedPartner(undefined);
 			}
-		});
-	};
-	const addPartner = (user: SearchedUser) => {
-		setUserLock([...userLock, user.email]);
-		client.models.Pairing.create({
-			members: [user.username],
-			memberInfo: [{ email: user.email, username: user.username }],
-		}).then((res) => {
-			console.log(res.data);
-			setUserLock(
-				[...userLock].filter((lockedUser) => lockedUser !== user.email)
-			);
 		});
 	};
 	return (
@@ -45,20 +32,15 @@ const PartnerSearch = ({}: Props) => {
 				label="Find a partner"
 				hasSearchIcon={true}
 				onSubmit={(searchTerm) => searchForUser(searchTerm)}
-				onClear={() => setSearchedUser(undefined)}
-				onChange={() => setSearchedUser(undefined)}
+				onClear={() => setSearchedPartner(undefined)}
+				onChange={() => setSearchedPartner(undefined)}
 			/>
-			{searchedUser ? (
-				<Card>
-					{searchedUser.email}
-					{userLock.includes(searchedUser.email) ? (
-						<Loader />
-					) : (
-						<Button onClick={() => addPartner(searchedUser)}>
-							Add
-						</Button>
-					)}
-				</Card>
+			{searchedPartner ? (
+				<PartnerCard
+					partner={searchedPartner}
+					partnerChangeLocks={partnerChangeLocks}
+					addPartner={addPartner}
+				/>
 			) : (
 				<></>
 			)}
