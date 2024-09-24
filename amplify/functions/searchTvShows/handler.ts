@@ -1,4 +1,3 @@
-import { Handler } from "aws-lambda";
 import type { Schema } from "../../data/resource";
 import { env } from "$amplify/env/searchTvShows"; // the import is '$amplify/env/<function name>'
 

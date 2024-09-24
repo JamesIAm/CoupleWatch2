@@ -1,5 +1,6 @@
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
 import { searchTvShows } from "../functions/searchTvShows/resource";
+import { searchUser } from "../functions/search-user/resource";
 
 /*== STEP 1 ===============================================================
 The section below creates a Todo database table with a "content" field. Try
@@ -15,6 +16,25 @@ const schema = a.schema({
 		})
 		.identifier(["mediaId"])
 		.authorization((allow) => [allow.owner()]),
+
+	Pairing: a
+		.model({
+			members: a.string().array().required(),
+			memberInfo: a.ref("Partner").array().required(),
+		})
+		.authorization((allow) => [allow.ownersDefinedIn("members")]),
+
+	Partner: a.customType({
+		email: a.string().required(),
+		username: a.string().required(),
+	}),
+
+	searchUser: a
+		.query()
+		.arguments({ email: a.string().required() })
+		.authorization((allow) => [allow.authenticated()])
+		.handler(a.handler.function(searchUser))
+		.returns(a.string()),
 
 	searchTvShows: a
 		.query()

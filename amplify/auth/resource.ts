@@ -1,4 +1,5 @@
 import { defineAuth, secret } from "@aws-amplify/backend";
+import { searchUser } from "../functions/search-user/resource";
 
 /**
  * Define and configure your auth resource
@@ -25,4 +26,6 @@ export const auth = defineAuth({
 			],
 		},
 	},
+
+	access: (allow) => [allow.resource(searchUser).to(["listUsers"])],
 });
