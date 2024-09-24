@@ -16,6 +16,7 @@ const client = generateClient<Schema>();
 function App() {
 	const [currentlyWatching, setCurrentlyWatching] = useState<Watching[]>([]);
 	const [pairings, setPairings] = useState<Pairing[]>([]);
+
 	const updateCurrentlyWatching = () => {
 		console.log("Getting a list of shows currently being watched");
 		client.models.Watching.list().then((res) => {
@@ -23,26 +24,23 @@ function App() {
 			setCurrentlyWatching(res.data);
 		});
 	};
-	const updateCurrentPartners = () => {
+	const updateCurrentPartners = (currentUserUsername: string) => {
 		console.log("Getting the list of current pairings");
 		client.models.Pairing.list().then((res) => {
 			console.log(res);
 			let newPairings = res.data
 				.map((rawPairing) => {
 					return {
-						...rawPairing,
-						memberInfo: rawPairing.memberInfo.filter(
-							(memberInfo) => memberInfo != null
-						),
-					};
-				})
-				.map((rawPairing) => {
-					return {
-						memberInfo: rawPairing.memberInfo,
 						pairingId: rawPairing.id,
+						memberInfo: rawPairing.memberInfo
+							.filter((memberInfo) => memberInfo != null)
+							.filter(
+								(memberInfo) =>
+									memberInfo.username !== currentUserUsername
+							),
 					};
 				})
-				.filter((pairing) => pairing.memberInfo.length !== 0)
+				.filter((pairing) => pairing.memberInfo.length === 1)
 				.map((pairing) => {
 					return {
 						...pairing,
@@ -50,17 +48,17 @@ function App() {
 						username: pairing.memberInfo[0].username,
 					};
 				});
-			setPairings(newPairings); //TODO: filter out the me user
+			setPairings(newPairings);
 		});
 	};
 	useEffect(() => {
 		updateCurrentlyWatching();
-		updateCurrentPartners();
 	}, []);
 
 	return (
 		<Authenticator>
-			{({ signOut }) => {
+			{({ signOut, user }) => {
+				if (!user) return <></>;
 				return (
 					<main>
 						<Search
@@ -74,6 +72,7 @@ function App() {
 						<PartnerManagement
 							currentPairings={pairings}
 							updateCurrentPartners={updateCurrentPartners}
+							currentUser={user}
 						/>
 						<button onClick={signOut}>Sign out</button>
 					</main>
