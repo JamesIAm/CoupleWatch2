@@ -1,22 +1,15 @@
-import { Schema } from "../../../amplify/data/resource";
+import { useAppSelector } from "../../state/hooks";
 import TvShowAccordion from "../TvShow/TvShowAccordion";
+import { selectCurrentlyWatching } from "./currentlyWatchingSlice";
 
-export type Watching = Schema["Watching"]["type"];
-type Props = {
-	currentlyWatching: Watching[];
-	updateCurrentlyWatching: () => void;
-};
-const CurrentlyWatchingList = ({
-	currentlyWatching,
-	updateCurrentlyWatching,
-}: Props) => {
+type Props = {};
+const CurrentlyWatchingList = ({}: Props) => {
+	const currentlyWatching = useAppSelector(selectCurrentlyWatching);
 	return (
 		<div>
 			<h1>CurrentlyWatchingList</h1>
 			<TvShowAccordion
 				tvShows={currentlyWatching.map((watching) => watching.show)}
-				watching={currentlyWatching}
-				updateCurrentlyWatching={updateCurrentlyWatching}
 			/>
 		</div>
 	);

@@ -1,9 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import pairingReducer from "../components/Partners/pairingsSlice";
+import currentlyWatchingReducer from "../components/CurrentlyWatching/currentlyWatchingSlice";
 // ...
 
 export const store = configureStore({
-	reducer: { pairings: pairingReducer },
+	reducer: {
+		pairings: pairingReducer,
+		currentlyWatching: currentlyWatchingReducer,
+	},
 });
 
 // Infer the `RootState`,  `AppDispatch`, and `AppStore` types from the store itself
