@@ -1,19 +1,19 @@
 import { generateClient } from "aws-amplify/api";
 import { Schema } from "../../../amplify/data/resource";
 import { Accordion } from "@aws-amplify/ui-react";
-import { Watching } from "../CurrentlyWatching/CurrentlyWatchingList";
+import { useAppDispatch } from "../../state/hooks";
+import {
+	updateCurrentlyWatching,
+	Watching,
+} from "../CurrentlyWatching/currentlyWatchingSlice";
 
 type Props = {
 	data: Schema["TvShow"]["type"];
 	watchRecord: Watching | null;
-	updateCurrentlyWatching: () => void;
 };
 const client = generateClient<Schema>();
-const TvShowAccordionItem = ({
-	data,
-	watchRecord,
-	updateCurrentlyWatching,
-}: Props) => {
+const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
+	const dispatch = useAppDispatch();
 	console.log(data);
 	const addWatchingRecord = (data: Schema["TvShow"]["type"]) => {
 		if (!data?.id) {
@@ -35,7 +35,7 @@ const TvShowAccordionItem = ({
 				console.log(
 					`Successfully recorded ${data.name} as being watched`
 				);
-				updateCurrentlyWatching();
+				dispatch(updateCurrentlyWatching());
 			}
 		});
 	};
@@ -59,7 +59,7 @@ const TvShowAccordionItem = ({
 				console.log(
 					`Successfully removed ${data.name} from being watched`
 				);
-				updateCurrentlyWatching();
+				dispatch(updateCurrentlyWatching());
 			}
 		});
 	};

@@ -1,24 +1,20 @@
 import { Accordion } from "@aws-amplify/ui-react";
 import TvShowAccordionItem from "./TvShowListElement";
-import { Watching } from "../CurrentlyWatching/CurrentlyWatchingList";
 import { TvShow } from "../Search/Search";
+import { selectCurrentlyWatching } from "../CurrentlyWatching/currentlyWatchingSlice";
+import { useAppSelector } from "../../state/hooks";
 
 type Props = {
-	watching: Watching[];
-	updateCurrentlyWatching: () => void;
 	tvShows: TvShow[];
 };
 
-const TvShowAccordion = ({
-	watching,
-	updateCurrentlyWatching,
-	tvShows,
-}: Props) => {
+const TvShowAccordion = ({ tvShows }: Props) => {
+	const currentlyWatching = useAppSelector(selectCurrentlyWatching);
 	return (
 		<Accordion.Container>
 			{tvShows.map((result) => {
 				let tvShow = result;
-				const watchRecord = watching.filter(
+				const watchRecord = currentlyWatching.filter(
 					(show) => show.mediaId === String(tvShow.id)
 				);
 				if (watchRecord.length > 1) {
@@ -30,7 +26,6 @@ const TvShowAccordion = ({
 						watchRecord={
 							watchRecord.length === 1 ? watchRecord[0] : null
 						}
-						updateCurrentlyWatching={updateCurrentlyWatching}
 					/>
 				);
 			})}
