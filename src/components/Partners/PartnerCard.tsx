@@ -1,14 +1,9 @@
 import { Card, Loader, Button } from "@aws-amplify/ui-react";
+import { Pairing } from "./pairingsSlice";
 
 export type Partner = {
 	email: string;
 	username: string;
-};
-
-export type Pairing = {
-	email: string;
-	username: string;
-	pairingId: string;
 };
 type Props = {
 	partner: Partner;
