@@ -1,25 +1,22 @@
 import { useEffect, useState } from "react";
 import PartnerSearch from "./PartnerSearch";
-import { Pairing, Partner } from "./PartnerCard";
+import { Partner } from "./PartnerCard";
 import { generateClient } from "aws-amplify/api";
 import { Schema } from "../../../amplify/data/resource";
 import { AuthUser } from "aws-amplify/auth";
+import { useAppSelector, useAppDispatch } from "../../state/hooks";
+import { Pairing, selectPairings, updatePairings } from "./pairingsSlice";
 
 type Props = {
-	currentPairings: Pairing[];
-	updateCurrentPartners: (currentUserUsername: string) => void;
 	currentUser: AuthUser;
 };
 
 const client = generateClient<Schema>();
-const PartnerManagement = ({
-	currentPairings,
-	updateCurrentPartners,
-	currentUser,
-}: Props) => {
+const PartnerManagement = ({ currentUser }: Props) => {
+	const dispatch = useAppDispatch();
 	const [partnerChangeLocks, setPartnerChangeLocks] = useState<string[]>([]);
 	useEffect(() => {
-		updateCurrentPartners(currentUser.username);
+		dispatch(updatePairings(currentUser));
 	}, []);
 	const addPartner = async (user: Partner) => {
 		setPartnerChangeLocks([...partnerChangeLocks, user.email]);
@@ -31,7 +28,7 @@ const PartnerManagement = ({
 			],
 		}).then((res) => {
 			console.log(res);
-			updateCurrentPartners(currentUser.username);
+			dispatch(updatePairings(currentUser));
 			setPartnerChangeLocks(
 				[...partnerChangeLocks].filter(
 					(lockedUser) => lockedUser !== user.email
@@ -46,7 +43,7 @@ const PartnerManagement = ({
 			id: pairing.pairingId,
 		}).then((res) => {
 			console.log(res.data);
-			updateCurrentPartners(currentUser.username);
+			dispatch(updatePairings(currentUser));
 			setPartnerChangeLocks(
 				[...partnerChangeLocks].filter(
 					(lockedUser) => lockedUser !== pairing.email
@@ -59,7 +56,6 @@ const PartnerManagement = ({
 			addPartner={addPartner}
 			removePartner={removePartner}
 			partnerChangeLocks={partnerChangeLocks}
-			currentPairings={currentPairings}
 			currentUser={currentUser}
 		/>
 	);
