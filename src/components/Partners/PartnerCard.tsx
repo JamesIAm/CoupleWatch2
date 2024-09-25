@@ -1,5 +1,6 @@
-import { Card, Loader, Button } from "@aws-amplify/ui-react";
-import { Pairing } from "./pairingsSlice";
+import { Card, Loader, Button, useAuthenticator } from "@aws-amplify/ui-react";
+import { addPartner, removePartner, selectPairing } from "./pairingsSlice";
+import { useAppDispatch, useAppSelector } from "../../state/hooks";
 
 export type Partner = {
 	email: string;
@@ -8,28 +9,34 @@ export type Partner = {
 type Props = {
 	partner: Partner;
 	partnerChangeLocks: string[];
-	addPartner: (user: Partner) => void;
-	pairing: Pairing | undefined;
-	removePartner: (pairing: Pairing) => void;
 };
 
-const PartnerCard = ({
-	partner,
-	partnerChangeLocks,
-	addPartner,
-	pairing,
-	removePartner,
-}: Props) => {
-	console.log(pairing);
+const PartnerCard = ({ partner, partnerChangeLocks }: Props) => {
+	const dispatch = useAppDispatch();
+	const { user } = useAuthenticator((context) => [context.user]);
+	const currentPairing = useAppSelector((state) =>
+		selectPairing(state, partner)
+	);
+	console.log(currentPairing);
 	return (
 		<Card>
 			{partner.email}
 			{partnerChangeLocks.includes(partner.email) ? (
 				<Loader />
-			) : pairing ? (
-				<Button onClick={() => removePartner(pairing)}>Remove</Button>
+			) : currentPairing ? (
+				<Button
+					onClick={() =>
+						dispatch(
+							removePartner({ pairing: currentPairing, user })
+						)
+					}
+				>
+					Remove
+				</Button>
 			) : (
-				<Button onClick={() => addPartner(partner)}>Add</Button>
+				<Button onClick={() => dispatch(addPartner({ partner, user }))}>
+					Add
+				</Button>
 			)}
 		</Card>
 	);

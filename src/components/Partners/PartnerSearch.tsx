@@ -1,33 +1,22 @@
-import { SearchField } from "@aws-amplify/ui-react";
+import { SearchField, useAuthenticator } from "@aws-amplify/ui-react";
 import { generateClient } from "aws-amplify/api";
 import { Schema } from "../../../amplify/data/resource";
 import { useState } from "react";
 import PartnerCard, { Partner } from "./PartnerCard";
-import { AuthUser } from "aws-amplify/auth";
-import { Pairing, selectPairings } from "./pairingsSlice";
-import { useAppSelector } from "../../state/hooks";
 
 type Props = {
-	addPartner: (partner: Partner) => void;
-	removePartner: (pairing: Pairing) => void;
 	partnerChangeLocks: string[];
-	currentUser: AuthUser;
 };
 
 const client = generateClient<Schema>();
 
-const PartnerSearch = ({
-	addPartner,
-	removePartner,
-	partnerChangeLocks,
-	currentUser,
-}: Props) => {
+const PartnerSearch = ({ partnerChangeLocks }: Props) => {
 	const [searchedPartner, setSearchedPartner] = useState<Partner | undefined>(
 		undefined
 	);
 
+	const { user } = useAuthenticator((context) => [context.user]);
 	console.log(searchedPartner);
-	const currentPairings = useAppSelector(selectPairings);
 	const searchForUser = (email: string) => {
 		client.queries.searchUser({ email: email }).then((res) => {
 			console.log(res);
@@ -39,14 +28,6 @@ const PartnerSearch = ({
 		});
 	};
 
-	const getPairing = (searchedPartner: Partner) => {
-		for (const currentPairing of currentPairings) {
-			if (currentPairing.username === searchedPartner.username) {
-				return currentPairing;
-			}
-		}
-		return undefined;
-	};
 	return (
 		<div>
 			<h2>Find a partner</h2>
@@ -57,14 +38,10 @@ const PartnerSearch = ({
 				onClear={() => setSearchedPartner(undefined)}
 				onChange={() => setSearchedPartner(undefined)}
 			/>
-			{searchedPartner &&
-			searchedPartner.username !== currentUser.username ? (
+			{searchedPartner && searchedPartner.username !== user.username ? (
 				<PartnerCard
 					partner={searchedPartner}
 					partnerChangeLocks={partnerChangeLocks}
-					addPartner={addPartner}
-					pairing={getPairing(searchedPartner)}
-					removePartner={removePartner}
 				/>
 			) : (
 				<></>

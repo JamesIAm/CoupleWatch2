@@ -3,61 +3,27 @@ import PartnerSearch from "./PartnerSearch";
 import { Partner } from "./PartnerCard";
 import { generateClient } from "aws-amplify/api";
 import { Schema } from "../../../amplify/data/resource";
-import { AuthUser } from "aws-amplify/auth";
-import { useAppSelector, useAppDispatch } from "../../state/hooks";
-import { Pairing, selectPairings, updatePairings } from "./pairingsSlice";
+import { useAppDispatch } from "../../state/hooks";
+import { Pairing, updatePairings } from "./pairingsSlice";
+import PartnerList from "./PartnerList";
+import { useAuthenticator } from "@aws-amplify/ui-react";
 
-type Props = {
-	currentUser: AuthUser;
-};
+type Props = {};
 
 const client = generateClient<Schema>();
-const PartnerManagement = ({ currentUser }: Props) => {
+const PartnerManagement = () => {
 	const dispatch = useAppDispatch();
 	const [partnerChangeLocks, setPartnerChangeLocks] = useState<string[]>([]);
+	const { user } = useAuthenticator((context) => [context.user]);
 	useEffect(() => {
-		dispatch(updatePairings(currentUser));
+		dispatch(updatePairings(user));
 	}, []);
-	const addPartner = async (user: Partner) => {
-		setPartnerChangeLocks([...partnerChangeLocks, user.email]);
-		client.models.Pairing.create({
-			members: [user.username, currentUser.username],
-			memberInfo: [
-				{ email: user.email, username: user.username },
-				{ email: "", username: currentUser.username },
-			],
-		}).then((res) => {
-			console.log(res);
-			dispatch(updatePairings(currentUser));
-			setPartnerChangeLocks(
-				[...partnerChangeLocks].filter(
-					(lockedUser) => lockedUser !== user.email
-				)
-			);
-		});
-	};
 
-	const removePartner = (pairing: Pairing) => {
-		setPartnerChangeLocks([...partnerChangeLocks, pairing.email]);
-		client.models.Pairing.delete({
-			id: pairing.pairingId,
-		}).then((res) => {
-			console.log(res.data);
-			dispatch(updatePairings(currentUser));
-			setPartnerChangeLocks(
-				[...partnerChangeLocks].filter(
-					(lockedUser) => lockedUser !== pairing.email
-				)
-			);
-		});
-	};
 	return (
-		<PartnerSearch
-			addPartner={addPartner}
-			removePartner={removePartner}
-			partnerChangeLocks={partnerChangeLocks}
-			currentUser={currentUser}
-		/>
+		<div>
+			<PartnerSearch partnerChangeLocks={partnerChangeLocks} />
+			<PartnerList />
+		</div>
 	);
 };
 

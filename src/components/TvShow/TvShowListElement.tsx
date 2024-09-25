@@ -14,7 +14,6 @@ type Props = {
 const client = generateClient<Schema>();
 const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
 	const dispatch = useAppDispatch();
-	console.log(data);
 	const addWatchingRecord = (data: Schema["TvShow"]["type"]) => {
 		if (!data?.id) {
 			return false;
