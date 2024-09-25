@@ -1,5 +1,10 @@
 import { Card, Loader, Button, useAuthenticator } from "@aws-amplify/ui-react";
-import { addPartner, removePartner, selectPairing } from "./pairingsSlice";
+import {
+	addPartner,
+	removePartner,
+	selectPairing,
+	selectPartnerChangeLock,
+} from "./pairingsSlice";
 import { useAppDispatch, useAppSelector } from "../../state/hooks";
 
 export type Partner = {
@@ -8,20 +13,22 @@ export type Partner = {
 };
 type Props = {
 	partner: Partner;
-	partnerChangeLocks: string[];
 };
 
-const PartnerCard = ({ partner, partnerChangeLocks }: Props) => {
+const PartnerCard = ({ partner }: Props) => {
 	const dispatch = useAppDispatch();
 	const { user } = useAuthenticator((context) => [context.user]);
 	const currentPairing = useAppSelector((state) =>
 		selectPairing(state, partner)
 	);
+	const isLocked = useAppSelector((state) =>
+		selectPartnerChangeLock(state, partner)
+	);
 	console.log(currentPairing);
 	return (
 		<Card>
 			{partner.email}
-			{partnerChangeLocks.includes(partner.email) ? (
+			{isLocked ? (
 				<Loader />
 			) : currentPairing ? (
 				<Button

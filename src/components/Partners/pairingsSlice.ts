@@ -9,11 +9,9 @@ import { generateClient } from "aws-amplify/api";
 import { Schema } from "../../../amplify/data/resource";
 import { Partner } from "./PartnerCard";
 
-// Define a type for the slice state
 export interface PairingsState {
 	pairings: Pairing[];
-	status: "pending" | "succeeded" | "failed" | "idle";
-	error: string | null;
+	changeLocks: string[];
 }
 export type Pairing = {
 	email: string;
@@ -21,39 +19,57 @@ export type Pairing = {
 	pairingId: string;
 };
 
-// Define the initial state using that type
 const initialState: PairingsState = {
 	pairings: [],
-	status: "idle",
-	error: null,
+	changeLocks: [],
 };
 
 export const pairingsSlice = createSlice({
 	name: "pairings",
-	// `createSlice` will infer the state type from the `initialState` argument
 	initialState,
 	reducers: {},
 	extraReducers: (builder) => {
 		builder
-			.addCase(updatePairings.pending, (state, _action) => {
-				state.status = "pending";
-			})
 			.addCase(updatePairings.fulfilled, (state, action) => {
-				state.status = "succeeded";
-				// Add any fetched posts to the array
 				state.pairings = action.payload;
 			})
-			.addCase(updatePairings.rejected, (state, action) => {
-				state.status = "failed";
-				state.error = action.error.message ?? "Unknown Error";
+			.addCase(addPartner.pending, (state, action) => {
+				state.changeLocks.push(action.meta.arg.partner.username);
 			})
 			.addCase(addPartner.fulfilled, (state, action) => {
+				state.changeLocks = state.changeLocks.filter(
+					(lockedUsername) => {
+						lockedUsername !== action.meta.arg.partner.username;
+					}
+				);
 				state.pairings.push(action.payload);
+			})
+			.addCase(addPartner.rejected, (state, action) => {
+				state.changeLocks = state.changeLocks.filter(
+					(lockedUsername) => {
+						lockedUsername !== action.meta.arg.partner.username;
+					}
+				);
+			})
+			.addCase(removePartner.pending, (state, action) => {
+				state.changeLocks.push(action.meta.arg.pairing.username);
 			})
 			.addCase(removePartner.fulfilled, (state, action) => {
 				state.pairings = state.pairings.filter((pairing) => {
 					return pairing.username !== action.payload.username;
 				});
+				state.changeLocks = state.changeLocks.filter(
+					(lockedUsername) => {
+						lockedUsername !== action.meta.arg.pairing.username;
+					}
+				);
+			})
+			.addCase(removePartner.rejected, (state, action) => {
+				state.changeLocks = state.changeLocks.filter(
+					(lockedUsername) => {
+						lockedUsername !== action.meta.arg.pairing.username;
+					}
+				);
 			});
 	},
 	selectors: {
@@ -111,7 +127,6 @@ const extractOtherUserInfo = (
 export const addPartner = createAsyncThunk(
 	"pairings/add",
 	async ({ partner, user }: { partner: Partner; user: AuthUser }) => {
-		// setPartnerChangeLocks([...partnerChangeLocks, user.email]);
 		return await client.models.Pairing.create({
 			members: [partner.username, user.username],
 			memberInfo: [
@@ -128,12 +143,6 @@ export const addPartner = createAsyncThunk(
 				if (pairingOptional) return pairingOptional;
 			}
 			throw new Error();
-			// dispatch(updatePairings(currentUser));
-			// setPartnerChangeLocks(
-			// 	[...partnerChangeLocks].filter(
-			// 		(lockedUser) => lockedUser !== user.email
-			// 	)
-			// );
 		});
 	}
 );
@@ -141,7 +150,6 @@ export const addPartner = createAsyncThunk(
 export const removePartner = createAsyncThunk(
 	"pairings/delete",
 	async ({ pairing, user }: { pairing: Pairing; user: AuthUser }) => {
-		// setPartnerChangeLocks([...partnerChangeLocks, pairing.email]);
 		return await client.models.Pairing.delete({
 			id: pairing.pairingId,
 		}).then((res) => {
@@ -154,11 +162,6 @@ export const removePartner = createAsyncThunk(
 				if (pairingOptional) return pairingOptional;
 			}
 			throw new Error();
-			// setPartnerChangeLocks(
-			// 	[...partnerChangeLocks].filter(
-			// 		(lockedUser) => lockedUser !== pairing.email
-			// 	)
-			// );
 		});
 	}
 );
@@ -166,6 +169,14 @@ export const removePartner = createAsyncThunk(
 export const {} = pairingsSlice.actions;
 export const {} = pairingsSlice.selectors;
 export const selectPairings = (state: RootState) => state.pairings.pairings;
+export const selectPartnerChangeLocks = (state: RootState) =>
+	state.pairings.changeLocks;
+export const selectPartnerChangeLock = createSelector(
+	[selectPartnerChangeLocks, (_state, partner) => partner],
+	(partnerChangeLocks, partner) => {
+		return partnerChangeLocks.includes(partner.username);
+	}
+);
 export const selectPairing = createSelector(
 	[selectPairings, (_state, partner) => partner],
 	(pairings, partner) => {

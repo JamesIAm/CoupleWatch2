@@ -4,13 +4,11 @@ import { Schema } from "../../../amplify/data/resource";
 import { useState } from "react";
 import PartnerCard, { Partner } from "./PartnerCard";
 
-type Props = {
-	partnerChangeLocks: string[];
-};
+type Props = {};
 
 const client = generateClient<Schema>();
 
-const PartnerSearch = ({ partnerChangeLocks }: Props) => {
+const PartnerSearch = ({}: Props) => {
 	const [searchedPartner, setSearchedPartner] = useState<Partner | undefined>(
 		undefined
 	);
@@ -39,10 +37,7 @@ const PartnerSearch = ({ partnerChangeLocks }: Props) => {
 				onChange={() => setSearchedPartner(undefined)}
 			/>
 			{searchedPartner && searchedPartner.username !== user.username ? (
-				<PartnerCard
-					partner={searchedPartner}
-					partnerChangeLocks={partnerChangeLocks}
-				/>
+				<PartnerCard partner={searchedPartner} />
 			) : (
 				<></>
 			)}
