@@ -9,6 +9,8 @@ import {
 	Watching,
 } from "../CurrentlyWatching/currentlyWatchingSlice";
 import { selectPairings } from "../Partners/pairingsSlice";
+import { useState, useEffect } from "react";
+import { Partner } from "../Partners/PartnerCard";
 
 type Props = {
 	data: TvShow;
@@ -17,11 +19,27 @@ type Props = {
 const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
 	const dispatch = useAppDispatch();
 	const partners = useAppSelector((state) => selectPairings(state));
+	const [activePartners, setActivePartners] = useState<Partner[]>([]);
+	useEffect(() => {
+		if (watchRecord) {
+			setActivePartners(
+				partners.filter((partner) =>
+					watchRecord.with.includes(partner.username)
+				)
+			);
+		}
+	}, [partners, watchRecord, setActivePartners]);
 
 	return (
 		<Accordion.Item value={String(data.id)}>
 			<Accordion.Trigger>
-				{data.name} ({data.first_air_date?.substring(0, 4)})
+				{data.name} ({data.first_air_date?.substring(0, 4)}){" "}
+				{activePartners
+					.map(
+						(partnerInWatchingThisShow) =>
+							partnerInWatchingThisShow.email
+					)
+					.join(",")}
 			</Accordion.Trigger>
 
 			<Accordion.Content>
