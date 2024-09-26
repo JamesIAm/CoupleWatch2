@@ -4,6 +4,7 @@ import { generateClient } from "aws-amplify/api";
 import { Schema } from "../../../amplify/data/resource";
 import { Pairing } from "../Partners/pairingsSlice";
 import { logErrorsAndReturnData } from "../../utils/ClientUtils";
+import { AuthUser } from "aws-amplify/auth";
 
 // Define a type for the slice state
 export interface CurrentlyWatchingState {
@@ -91,20 +92,20 @@ export const updateCurrentlyWatching = createAsyncThunk(
 
 export const addWatchingRecord = createAsyncThunk(
 	"currentlyWatching/add",
-	async (data: TvShow) => {
+	async ({ data, user }: { data: TvShow; user: AuthUser }) => {
 		return client.models.Watching.create({
 			show: data,
 			mediaId: String(data.id),
-			with: [],
+			with: [user.username],
 		}).then(logErrorsAndReturnData);
 	}
 );
 
 export const deleteWatchingRecord = createAsyncThunk(
 	"currentlyWatching/delete",
-	async (data: TvShow) => {
+	async (data: Watching) => {
 		return client.models.Watching.delete({
-			mediaId: String(data.id),
+			id: data.id,
 		}).then(logErrorsAndReturnData);
 	}
 );
@@ -112,9 +113,10 @@ export const deleteWatchingRecord = createAsyncThunk(
 export const addPartnerToRecord = createAsyncThunk(
 	"currentlyWatching/with/add",
 	async ({ data, pairing }: { data: Watching; pairing: Pairing }) => {
+		const newMembers = [...data.with, pairing.username];
 		return client.models.Watching.update({
-			mediaId: String(data.mediaId),
-			with: [...data.with, pairing.username],
+			id: data.id,
+			with: newMembers,
 		}).then(logErrorsAndReturnData);
 	}
 );
@@ -122,11 +124,12 @@ export const addPartnerToRecord = createAsyncThunk(
 export const removePartnerFromRecord = createAsyncThunk(
 	"currentlyWatching/with/remove",
 	async ({ data, pairing }: { data: Watching; pairing: Pairing }) => {
+		const newMembers = data.with.filter(
+			(watchingWith) => watchingWith !== pairing.username
+		);
 		return client.models.Watching.update({
-			mediaId: String(data.mediaId),
-			with: data.with.filter(
-				(watchingWith) => watchingWith !== pairing.username
-			),
+			id: data.id,
+			with: newMembers,
 		}).then(logErrorsAndReturnData);
 	}
 );

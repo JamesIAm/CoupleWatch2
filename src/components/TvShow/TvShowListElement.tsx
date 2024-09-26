@@ -1,4 +1,9 @@
-import { Accordion, Button, SwitchField } from "@aws-amplify/ui-react";
+import {
+	Accordion,
+	Button,
+	SwitchField,
+	useAuthenticator,
+} from "@aws-amplify/ui-react";
 import { useAppDispatch, useAppSelector } from "../../state/hooks";
 import {
 	addPartnerToRecord,
@@ -19,6 +24,7 @@ type Props = {
 const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
 	const dispatch = useAppDispatch();
 	const partners = useAppSelector((state) => selectPairings(state));
+	const { user } = useAuthenticator((context) => [context.user]);
 	const [activePartners, setActivePartners] = useState<Partner[]>([]);
 	useEffect(() => {
 		if (watchRecord) {
@@ -29,7 +35,6 @@ const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
 			);
 		}
 	}, [partners, watchRecord, setActivePartners]);
-
 	return (
 		<Accordion.Item value={String(data.id)}>
 			<Accordion.Trigger>
@@ -55,7 +60,9 @@ const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
 				{watchRecord ? (
 					<>
 						<Button
-							onClick={() => dispatch(deleteWatchingRecord(data))}
+							onClick={() =>
+								dispatch(deleteWatchingRecord(watchRecord))
+							}
 						>
 							Stop watching
 						</Button>
@@ -90,7 +97,11 @@ const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
 						})}
 					</>
 				) : (
-					<Button onClick={() => dispatch(addWatchingRecord(data))}>
+					<Button
+						onClick={() =>
+							dispatch(addWatchingRecord({ data, user }))
+						}
+					>
 						Start watching
 					</Button>
 				)}
