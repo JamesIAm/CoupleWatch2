@@ -15,8 +15,7 @@ const schema = a.schema({
 			mediaId: a.string().required(),
 			with: a.string().array().required(),
 		})
-		.identifier(["mediaId"])
-		.authorization((allow) => [allow.owner()]),
+		.authorization((allow) => [allow.ownersDefinedIn("with")]),
 
 	Pairing: a
 		.model({
