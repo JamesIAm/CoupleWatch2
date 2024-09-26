@@ -13,6 +13,7 @@ const schema = a.schema({
 		.model({
 			show: a.ref("TvShow").required(),
 			mediaId: a.string().required(),
+			with: a.string().array().required(),
 		})
 		.identifier(["mediaId"])
 		.authorization((allow) => [allow.owner()]),
