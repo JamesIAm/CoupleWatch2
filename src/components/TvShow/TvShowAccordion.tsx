@@ -12,8 +12,7 @@ const TvShowAccordion = ({ tvShows }: Props) => {
 	const currentlyWatching = useAppSelector(selectCurrentlyWatching);
 	return (
 		<Accordion.Container>
-			{tvShows.map((result) => {
-				let tvShow = result;
+			{tvShows.map((tvShow) => {
 				const watchRecord = currentlyWatching.filter(
 					(show) => show.mediaId === String(tvShow.id)
 				);

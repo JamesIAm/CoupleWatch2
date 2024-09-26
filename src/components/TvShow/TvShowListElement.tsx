@@ -1,25 +1,23 @@
-import { Schema } from "../../../amplify/data/resource";
-import {
-	Accordion,
-	Button,
-	CheckboxField,
-	SwitchField,
-} from "@aws-amplify/ui-react";
+import { Accordion, Button, SwitchField } from "@aws-amplify/ui-react";
 import { useAppDispatch, useAppSelector } from "../../state/hooks";
 import {
+	addPartnerToRecord,
 	addWatchingRecord,
 	deleteWatchingRecord,
+	removePartnerFromRecord,
+	TvShow,
 	Watching,
 } from "../CurrentlyWatching/currentlyWatchingSlice";
 import { selectPairings } from "../Partners/pairingsSlice";
 
 type Props = {
-	data: Schema["TvShow"]["type"];
+	data: TvShow;
 	watchRecord: Watching | null;
 };
 const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
 	const dispatch = useAppDispatch();
 	const partners = useAppSelector((state) => selectPairings(state));
+
 	return (
 		<Accordion.Item value={String(data.id)}>
 			<Accordion.Trigger>
@@ -37,24 +35,47 @@ const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
 					</div>
 				) : null}
 				{watchRecord ? (
-					<Button
-						onClick={() => dispatch(deleteWatchingRecord(data))}
-					>
-						Stop watching
-					</Button>
+					<>
+						<Button
+							onClick={() => dispatch(deleteWatchingRecord(data))}
+						>
+							Stop watching
+						</Button>
+						{partners.map((partner) => {
+							const isWatchingThisShowWithCurrentUser =
+								watchRecord.with.includes(partner.username);
+							return (
+								<SwitchField
+									key={partner.username}
+									labelPosition="start"
+									label={partner.email}
+									isChecked={
+										isWatchingThisShowWithCurrentUser
+									}
+									onChange={() =>
+										isWatchingThisShowWithCurrentUser
+											? dispatch(
+													removePartnerFromRecord({
+														data: watchRecord,
+														pairing: partner,
+													})
+											  )
+											: dispatch(
+													addPartnerToRecord({
+														data: watchRecord,
+														pairing: partner,
+													})
+											  )
+									}
+								/>
+							);
+						})}
+					</>
 				) : (
 					<Button onClick={() => dispatch(addWatchingRecord(data))}>
 						Start watching
 					</Button>
 				)}
-				{partners.map((partner) => {
-					return (
-						<SwitchField
-							labelPosition="start"
-							label={partner.email}
-						/>
-					);
-				})}
 			</Accordion.Content>
 		</Accordion.Item>
 	);

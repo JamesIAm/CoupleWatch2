@@ -2,6 +2,7 @@ import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import type { RootState } from "../../state/store";
 import { generateClient } from "aws-amplify/api";
 import { Schema } from "../../../amplify/data/resource";
+import { Pairing } from "../Partners/pairingsSlice";
 
 // Define a type for the slice state
 export interface CurrentlyWatchingState {
@@ -49,6 +50,30 @@ export const currentlyWatchingSlice = createSlice({
 					(currentlyWatching) =>
 						currentlyWatching.mediaId !== action.payload.mediaId
 				);
+			})
+			.addCase(addPartnerToRecord.fulfilled, (state, action) => {
+				const id = action.payload.mediaId;
+				const currentStateWithoutUpdatedRecord =
+					state.currentlyWatching.filter(
+						(currentlyWatchingRecord) =>
+							currentlyWatchingRecord.mediaId !== id
+					);
+				state.currentlyWatching = [
+					...currentStateWithoutUpdatedRecord,
+					action.payload,
+				];
+			})
+			.addCase(removePartnerFromRecord.fulfilled, (state, action) => {
+				const id = action.payload.mediaId;
+				const currentStateWithoutUpdatedRecord =
+					state.currentlyWatching.filter(
+						(currentlyWatchingRecord) =>
+							currentlyWatchingRecord.mediaId !== id
+					);
+				state.currentlyWatching = state.currentlyWatching = [
+					...currentStateWithoutUpdatedRecord,
+					action.payload,
+				];
 			});
 	},
 });
@@ -60,7 +85,10 @@ export const updateCurrentlyWatching = createAsyncThunk(
 	async () => {
 		console.log("Getting a list of shows currently being watched");
 		return await client.models.Watching.list().then((res) => {
-			console.log(res);
+			if (res.errors) {
+				console.error(res.errors);
+				throw new Error(res.errors[0].message);
+			}
 			return res.data;
 		});
 	}
@@ -72,6 +100,7 @@ export const addWatchingRecord = createAsyncThunk(
 		return client.models.Watching.create({
 			show: data,
 			mediaId: String(data.id),
+			with: [],
 		}).then((result) => {
 			if (result.data) {
 				return result.data;
@@ -96,6 +125,45 @@ export const deleteWatchingRecord = createAsyncThunk(
 			if (result.errors) {
 				throw new Error(result.errors[0].message);
 			}
+			throw new Error("No data or errors");
+		});
+	}
+);
+
+export const addPartnerToRecord = createAsyncThunk(
+	"currentlyWatching/with/add",
+	async ({ data, pairing }: { data: Watching; pairing: Pairing }) => {
+		return client.models.Watching.update({
+			mediaId: String(data.mediaId),
+			with: [...data.with, pairing.username],
+		}).then((res) => {
+			if (res.data) {
+				return res.data;
+			}
+			if (res.errors) {
+				throw new Error(res.errors[0].message);
+			}
+			throw new Error("No data or errors");
+		});
+	}
+);
+
+export const removePartnerFromRecord = createAsyncThunk(
+	"currentlyWatching/with/remove",
+	async ({ data, pairing }: { data: Watching; pairing: Pairing }) => {
+		return client.models.Watching.update({
+			mediaId: String(data.mediaId),
+			with: data.with.filter(
+				(watchingWith) => watchingWith !== pairing.username
+			),
+		}).then((res) => {
+			if (res.data) {
+				return res.data;
+			}
+			if (res.errors) {
+				throw new Error(res.errors[0].message);
+			}
+
 			throw new Error("No data or errors");
 		});
 	}
