@@ -1,11 +1,17 @@
 import { Schema } from "../../../amplify/data/resource";
-import { Accordion } from "@aws-amplify/ui-react";
-import { useAppDispatch } from "../../state/hooks";
+import {
+	Accordion,
+	Button,
+	CheckboxField,
+	SwitchField,
+} from "@aws-amplify/ui-react";
+import { useAppDispatch, useAppSelector } from "../../state/hooks";
 import {
 	addWatchingRecord,
 	deleteWatchingRecord,
 	Watching,
 } from "../CurrentlyWatching/currentlyWatchingSlice";
+import { selectPairings } from "../Partners/pairingsSlice";
 
 type Props = {
 	data: Schema["TvShow"]["type"];
@@ -13,6 +19,7 @@ type Props = {
 };
 const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
 	const dispatch = useAppDispatch();
+	const partners = useAppSelector((state) => selectPairings(state));
 	return (
 		<Accordion.Item value={String(data.id)}>
 			<Accordion.Trigger>
@@ -30,16 +37,24 @@ const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
 					</div>
 				) : null}
 				{watchRecord ? (
-					<button
+					<Button
 						onClick={() => dispatch(deleteWatchingRecord(data))}
 					>
 						Stop watching
-					</button>
+					</Button>
 				) : (
-					<button onClick={() => dispatch(addWatchingRecord(data))}>
+					<Button onClick={() => dispatch(addWatchingRecord(data))}>
 						Start watching
-					</button>
+					</Button>
 				)}
+				{partners.map((partner) => {
+					return (
+						<SwitchField
+							labelPosition="start"
+							label={partner.email}
+						/>
+					);
+				})}
 			</Accordion.Content>
 		</Accordion.Item>
 	);
