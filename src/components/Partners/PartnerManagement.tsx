@@ -16,8 +16,8 @@ const PartnerManagement = ({}: Props) => {
 
 	return (
 		<div>
-			<PartnerSearch />
 			<PartnerList />
+			<PartnerSearch />
 		</div>
 	);
 };
