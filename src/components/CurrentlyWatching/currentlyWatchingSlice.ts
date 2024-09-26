@@ -10,6 +10,7 @@ export interface CurrentlyWatchingState {
 	currentlyWatching: Watching[];
 }
 export type Watching = Schema["Watching"]["type"];
+export type TvShow = Schema["TvShow"]["type"];
 
 // Define the initial state using that type
 const initialState: CurrentlyWatchingState = {
@@ -36,6 +37,15 @@ export const currentlyWatchingSlice = createSlice({
 			.addCase(updateCurrentlyWatching.rejected, (state, action) => {
 				state.status = "failed";
 				state.error = action.error.message ?? "Unknown Error";
+			})
+			.addCase(addWatchingRecord.fulfilled, (state, action) => {
+				state.currentlyWatching.push(action.payload);
+			})
+			.addCase(deleteWatchingRecord.fulfilled, (state, action) => {
+				state.currentlyWatching = state.currentlyWatching.filter(
+					(currentlyWatching) =>
+						currentlyWatching.mediaId !== action.payload.mediaId
+				);
 			});
 	},
 });
@@ -49,6 +59,41 @@ export const updateCurrentlyWatching = createAsyncThunk(
 		return await client.models.Watching.list().then((res) => {
 			console.log(res);
 			return res.data;
+		});
+	}
+);
+
+export const addWatchingRecord = createAsyncThunk(
+	"currentlyWatching/add",
+	async (data: TvShow) => {
+		return client.models.Watching.create({
+			show: data,
+			mediaId: String(data.id),
+		}).then((result) => {
+			if (result.data) {
+				return result.data;
+			}
+			if (result.errors) {
+				throw new Error(result.errors[0].message);
+			}
+			throw new Error("No data or errors");
+		});
+	}
+);
+
+export const deleteWatchingRecord = createAsyncThunk(
+	"currentlyWatching/delete",
+	async (data: TvShow) => {
+		return client.models.Watching.delete({
+			mediaId: String(data.id),
+		}).then((result) => {
+			if (result.data) {
+				return result.data;
+			}
+			if (result.errors) {
+				throw new Error(result.errors[0].message);
+			}
+			throw new Error("No data or errors");
 		});
 	}
 );
