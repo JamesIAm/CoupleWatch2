@@ -34,7 +34,10 @@ export const pairingsSlice = createSlice({
 				state.pairings = action.payload;
 			})
 			.addCase(addPartner.pending, (state, action) => {
-				state.changeLocks.push(action.meta.arg.partner.username);
+				state.changeLocks = [
+					...state.changeLocks,
+					action.meta.arg.partner.username,
+				];
 			})
 			.addCase(addPartner.fulfilled, (state, action) => {
 				state.changeLocks = state.changeLocks.filter(
@@ -42,7 +45,7 @@ export const pairingsSlice = createSlice({
 						lockedUsername !== action.meta.arg.partner.username;
 					}
 				);
-				state.pairings.push(action.payload);
+				state.pairings = [...state.pairings, action.payload];
 			})
 			.addCase(addPartner.rejected, (state, action) => {
 				state.changeLocks = state.changeLocks.filter(
@@ -52,7 +55,10 @@ export const pairingsSlice = createSlice({
 				);
 			})
 			.addCase(removePartner.pending, (state, action) => {
-				state.changeLocks.push(action.meta.arg.pairing.username);
+				state.changeLocks = [
+					...state.changeLocks,
+					action.meta.arg.pairing.username,
+				];
 			})
 			.addCase(removePartner.fulfilled, (state, action) => {
 				state.pairings = state.pairings.filter((pairing) => {

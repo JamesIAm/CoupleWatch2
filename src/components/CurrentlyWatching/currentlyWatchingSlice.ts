@@ -39,7 +39,10 @@ export const currentlyWatchingSlice = createSlice({
 				state.error = action.error.message ?? "Unknown Error";
 			})
 			.addCase(addWatchingRecord.fulfilled, (state, action) => {
-				state.currentlyWatching.push(action.payload);
+				state.currentlyWatching = [
+					...state.currentlyWatching,
+					action.payload,
+				];
 			})
 			.addCase(deleteWatchingRecord.fulfilled, (state, action) => {
 				state.currentlyWatching = state.currentlyWatching.filter(
