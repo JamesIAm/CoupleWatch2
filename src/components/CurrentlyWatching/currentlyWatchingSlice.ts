@@ -3,6 +3,7 @@ import type { RootState } from "../../state/store";
 import { generateClient } from "aws-amplify/api";
 import { Schema } from "../../../amplify/data/resource";
 import { Pairing } from "../Partners/pairingsSlice";
+import { logErrorsAndReturnData } from "../../utils/ClientUtils";
 
 // Define a type for the slice state
 export interface CurrentlyWatchingState {
@@ -84,13 +85,7 @@ export const updateCurrentlyWatching = createAsyncThunk(
 	"currentlyWatching/update",
 	async () => {
 		console.log("Getting a list of shows currently being watched");
-		return await client.models.Watching.list().then((res) => {
-			if (res.errors) {
-				console.error(res.errors);
-				throw new Error(res.errors[0].message);
-			}
-			return res.data;
-		});
+		return await client.models.Watching.list().then(logErrorsAndReturnData);
 	}
 );
 
@@ -101,15 +96,7 @@ export const addWatchingRecord = createAsyncThunk(
 			show: data,
 			mediaId: String(data.id),
 			with: [],
-		}).then((result) => {
-			if (result.data) {
-				return result.data;
-			}
-			if (result.errors) {
-				throw new Error(result.errors[0].message);
-			}
-			throw new Error("No data or errors");
-		});
+		}).then(logErrorsAndReturnData);
 	}
 );
 
@@ -118,15 +105,7 @@ export const deleteWatchingRecord = createAsyncThunk(
 	async (data: TvShow) => {
 		return client.models.Watching.delete({
 			mediaId: String(data.id),
-		}).then((result) => {
-			if (result.data) {
-				return result.data;
-			}
-			if (result.errors) {
-				throw new Error(result.errors[0].message);
-			}
-			throw new Error("No data or errors");
-		});
+		}).then(logErrorsAndReturnData);
 	}
 );
 
@@ -136,15 +115,7 @@ export const addPartnerToRecord = createAsyncThunk(
 		return client.models.Watching.update({
 			mediaId: String(data.mediaId),
 			with: [...data.with, pairing.username],
-		}).then((res) => {
-			if (res.data) {
-				return res.data;
-			}
-			if (res.errors) {
-				throw new Error(res.errors[0].message);
-			}
-			throw new Error("No data or errors");
-		});
+		}).then(logErrorsAndReturnData);
 	}
 );
 
@@ -156,16 +127,7 @@ export const removePartnerFromRecord = createAsyncThunk(
 			with: data.with.filter(
 				(watchingWith) => watchingWith !== pairing.username
 			),
-		}).then((res) => {
-			if (res.data) {
-				return res.data;
-			}
-			if (res.errors) {
-				throw new Error(res.errors[0].message);
-			}
-
-			throw new Error("No data or errors");
-		});
+		}).then(logErrorsAndReturnData);
 	}
 );
 

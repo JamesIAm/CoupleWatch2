@@ -8,6 +8,7 @@ import { AuthUser } from "aws-amplify/auth";
 import { generateClient } from "aws-amplify/api";
 import { Schema } from "../../../amplify/data/resource";
 import { Partner } from "./PartnerCard";
+import { logErrorsAndReturnData } from "../../utils/ClientUtils";
 
 export interface PairingsState {
 	pairings: Pairing[];
@@ -96,9 +97,11 @@ export const updatePairings = createAsyncThunk(
 	"pairings/update",
 	async (currentUser: AuthUser) => {
 		console.log("Getting the list of current pairings");
-		return await client.models.Pairing.list().then((res) => {
-			return extractOtherUserInfo(res.data, currentUser.username);
-		});
+		return await client.models.Pairing.list()
+			.then(logErrorsAndReturnData)
+			.then((data) => {
+				return extractOtherUserInfo(data, currentUser.username);
+			});
 	}
 );
 
@@ -139,17 +142,16 @@ export const addPartner = createAsyncThunk(
 				{ email: partner.email, username: partner.username },
 				{ email: "", username: user.username },
 			],
-		}).then((res) => {
-			console.log(res);
-			if (res.data) {
+		})
+			.then(logErrorsAndReturnData)
+			.then((res) => {
 				const pairingOptional = extractOtherUserInfo(
-					[res.data],
+					[res],
 					user.username
 				)[0];
 				if (pairingOptional) return pairingOptional;
-			}
-			throw new Error();
-		});
+				throw new Error("Pairing not found");
+			});
 	}
 );
 
@@ -158,17 +160,16 @@ export const removePartner = createAsyncThunk(
 	async ({ pairing, user }: { pairing: Pairing; user: AuthUser }) => {
 		return await client.models.Pairing.delete({
 			id: pairing.pairingId,
-		}).then((res) => {
-			console.log(res.data);
-			if (res.data) {
+		})
+			.then(logErrorsAndReturnData)
+			.then((res) => {
 				const pairingOptional = extractOtherUserInfo(
-					[res.data],
+					[res],
 					user.username
 				)[0];
 				if (pairingOptional) return pairingOptional;
-			}
-			throw new Error();
-		});
+				throw new Error();
+			});
 	}
 );
 
