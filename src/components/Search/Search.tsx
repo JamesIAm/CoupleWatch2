@@ -9,17 +9,13 @@ export type TvShow = Schema["TvShow"]["type"];
 const Search = ({}: Props) => {
 	const [searchResults, setSearchResults] =
 		useState<Schema["searchTvShows"]["returnType"]>();
+	const tvShows = searchResults?.results
+		? (searchResults.results as unknown as TvShow[])
+		: new Array<TvShow>();
 	return (
 		<>
 			<SearchBar setSearchResult={setSearchResults} />
-			<TvShowAccordion
-				tvShows={
-					searchResults?.results
-						? (searchResults.results as unknown as TvShow[])
-						: new Array<TvShow>()
-				}
-				watchingWith={undefined}
-			/>
+			<TvShowAccordion tvShows={tvShows} watchingWith={undefined} />
 		</>
 	);
 };
