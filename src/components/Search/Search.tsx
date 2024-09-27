@@ -18,6 +18,7 @@ const Search = ({}: Props) => {
 						? (searchResults.results as unknown as TvShow[])
 						: new Array<TvShow>()
 				}
+				watchingWith={undefined}
 			/>
 		</>
 	);
