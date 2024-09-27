@@ -22,7 +22,7 @@ function App() {
 					<main>
 						<Search />
 						<CurrentlyWatchingList />
-						<PartnerManagement currentUser={user} />
+						<PartnerManagement />
 						<button onClick={signOut}>Sign out</button>
 					</main>
 				);

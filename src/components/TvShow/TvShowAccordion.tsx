@@ -1,4 +1,4 @@
-import { Accordion, useAuthenticator } from "@aws-amplify/ui-react";
+import { Accordion } from "@aws-amplify/ui-react";
 import TvShowAccordionItem from "./TvShowListElement";
 import { TvShow } from "../Search/Search";
 import { selectCurrentlyWatching } from "../CurrentlyWatching/currentlyWatchingSlice";
