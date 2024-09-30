@@ -10,43 +10,50 @@ import { useState } from "react";
 import PartnerCard, { Partner } from "./PartnerCard";
 
 type Props = {};
+type SearchState = "idle" | "searching" | "notFound" | "found";
+type SearchedPartner = {
+	state: SearchState;
+	partner?: Partner;
+};
 
 const client = generateClient<Schema>();
 
 const PartnerSearch = ({}: Props) => {
-	const [searchedPartner, setSearchedPartner] = useState<
-		Partner | null | undefined
-	>(undefined);
-	const [searching, setSearching] = useState<boolean>(false);
+	const [searchedPartner, setSearchedPartner] = useState<SearchedPartner>({
+		state: "idle",
+	});
 
 	const { user } = useAuthenticator((context) => [context.user]);
 	console.log(searchedPartner);
 	const searchForUser = (email: string) => {
-		setSearching(true);
+		setSearchedPartner({ state: "searching" });
 		client.queries.searchUser({ email: email }).then((res) => {
-			setSearching(false);
 			if (res.errors) {
+				setSearchedPartner({ state: "idle" });
 				throw new Error(res.errors[0].message);
 			}
 			if (res.data) {
-				setSearchedPartner({ email: email, username: res.data });
+				setSearchedPartner({
+					state: "found",
+					partner: { email: email, username: res.data },
+				});
 			} else {
-				setSearchedPartner(null);
+				setSearchedPartner({ state: "notFound" });
 			}
 		});
 	};
 
 	const renderSearchedPartner = () => {
 		{
-			if (searching) {
+			if (searchedPartner.state === "searching") {
 				return <Placeholder size="large" />;
 			}
-			if (searchedPartner === undefined) {
+			if (searchedPartner.state === "idle") {
 				return <></>;
 			}
 			if (
-				searchedPartner === null ||
-				(searchedPartner && searchedPartner.username === user.username)
+				searchedPartner.state === "notFound" ||
+				searchedPartner?.partner?.username === user.username
 			) {
 				return (
 					<Card>
@@ -54,7 +61,14 @@ const PartnerSearch = ({}: Props) => {
 					</Card>
 				);
 			}
-			return <PartnerCard partner={searchedPartner} />;
+			if (!searchedPartner.partner) {
+				throw new Error(
+					"Invalid state combination, seached partner state is " +
+						searchedPartner.state +
+						", and seachedPartner is undefined"
+				);
+			}
+			return <PartnerCard partner={searchedPartner.partner} />;
 		}
 	};
 
@@ -66,8 +80,8 @@ const PartnerSearch = ({}: Props) => {
 				placeholder="example@gmail.com"
 				hasSearchIcon={true}
 				onSubmit={(searchTerm) => searchForUser(searchTerm)}
-				onClear={() => setSearchedPartner(undefined)}
-				onChange={() => setSearchedPartner(undefined)}
+				onClear={() => setSearchedPartner({ state: "idle" })}
+				onChange={() => setSearchedPartner({ state: "idle" })}
 			/>
 			{renderSearchedPartner()}
 		</div>
