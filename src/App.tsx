@@ -1,6 +1,6 @@
 import { useEffect } from "react";
 
-import { Authenticator } from "@aws-amplify/ui-react";
+import { Authenticator, Tabs } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
 import Search from "./components/Search/Search";
 import CurrentlyWatchingList from "./components/CurrentlyWatching/CurrentlyWatchingList";
@@ -20,9 +20,27 @@ function App() {
 				if (!user) return <></>;
 				return (
 					<main>
-						<Search />
-						<CurrentlyWatchingList />
-						<PartnerManagement />
+						<Tabs
+							defaultValue="watching"
+							items={[
+								{
+									value: "watching",
+									label: "Tv Shows",
+									content: (
+										<>
+											<Search />
+											<CurrentlyWatchingList />
+										</>
+									),
+								},
+								{
+									value: "partnerManagement",
+									label: "Partners",
+									content: <PartnerManagement />,
+								},
+							]}
+						/>
+
 						<button onClick={signOut}>Sign out</button>
 					</main>
 				);
