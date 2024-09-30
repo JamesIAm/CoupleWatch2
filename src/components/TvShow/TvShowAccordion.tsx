@@ -1,4 +1,4 @@
-import { Accordion } from "@aws-amplify/ui-react";
+import { Accordion, ScrollView } from "@aws-amplify/ui-react";
 import TvShowAccordionItem from "./TvShowAccordionItem";
 import { TvShow } from "../Search/Search";
 import { selectCurrentlyWatching } from "../CurrentlyWatching/currentlyWatchingSlice";
@@ -61,9 +61,11 @@ const TvShowAccordion = ({ tvShows, watchingWith }: Props) => {
 	};
 
 	return (
-		<Accordion.Container>
-			{tvShows.map(getAllListingsForATvShow)}
-		</Accordion.Container>
+		<ScrollView height="20vh">
+			<Accordion.Container>
+				{tvShows.map(getAllListingsForATvShow)}
+			</Accordion.Container>
+		</ScrollView>
 	);
 };
 
