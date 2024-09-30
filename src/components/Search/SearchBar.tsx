@@ -1,6 +1,6 @@
 import { generateClient } from "aws-amplify/api";
-import { FormEvent, useState } from "react";
 import { Schema } from "../../../amplify/data/resource";
+import { SearchField } from "@aws-amplify/ui-react";
 
 type Props = {
 	setSearchResult: React.Dispatch<
@@ -10,25 +10,23 @@ type Props = {
 	>;
 };
 const client = generateClient<Schema>();
-const SearchBar = (props: Props) => {
-	const [searchTerm, setSearchTerm] = useState("");
-	const search = async (e: FormEvent<HTMLFormElement>) => {
-		e.preventDefault();
+const SearchBar = ({ setSearchResult }: Props) => {
+	const search = async (searchTerm: string) => {
 		let output = await client.queries.searchTvShows({
 			query: searchTerm,
 		});
-		props.setSearchResult(output.data);
+		setSearchResult(output.data);
 	};
 	return (
 		<>
 			<h1>Search</h1>
-			<form onSubmit={search}>
-				<input
-					name="query"
-					onChange={(e) => setSearchTerm(e.target.value)}
-				/>
-				<button type="submit">Search</button>
-			</form>
+			<SearchField
+				label="Find a tv show"
+				hasSearchIcon={true}
+				onSubmit={(searchTerm) => search(searchTerm)}
+				onClear={() => setSearchResult(undefined)}
+				onChange={() => setSearchResult(undefined)}
+			/>
 		</>
 	);
 };
