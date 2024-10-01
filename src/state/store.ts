@@ -1,12 +1,14 @@
 import { configureStore } from "@reduxjs/toolkit";
 import pairingReducer from "../components/Partners/pairingsSlice";
 import currentlyWatchingReducer from "../components/CurrentlyWatching/currentlyWatchingSlice";
+import searchReducer from "../components/Search/searchSlice";
 // ...
 
 export const store = configureStore({
 	reducer: {
 		pairings: pairingReducer,
 		currentlyWatching: currentlyWatchingReducer,
+		search: searchReducer,
 	},
 });
 
