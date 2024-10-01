@@ -1,6 +1,7 @@
 import { type ClientSchema, a, defineData } from "@aws-amplify/backend";
 import { searchTvShows } from "../functions/searchTvShows/resource";
 import { searchUser } from "../functions/search-user/resource";
+import { getTvShowEpisodes } from "../functions/getTvShowEpisodes/resource";
 
 /*== STEP 1 ===============================================================
 The section below creates a Todo database table with a "content" field. Try
@@ -64,6 +65,27 @@ const schema = a.schema({
 		name: a.string().required(),
 		vote_average: a.float(),
 		vote_count: a.integer(),
+	}),
+	getTvShowEpisodes: a
+		.query()
+		.arguments({ seriesId: a.string() })
+		.returns(
+			a.customType({
+				seasons: a.ref("Season").array().required(),
+				number_of_episodes: a.integer(),
+				number_of_seasons: a.integer(),
+			})
+		)
+		.handler(a.handler.function(getTvShowEpisodes))
+		.authorization((allow) => [allow.authenticated()]),
+	Season: a.customType({
+		air_date: a.string(),
+		episode_count: a.integer(),
+		id: a.integer(),
+		name: a.string(),
+		overview: a.string(),
+		poster_path: a.string(),
+		season_number: a.integer(),
 	}),
 });
 
