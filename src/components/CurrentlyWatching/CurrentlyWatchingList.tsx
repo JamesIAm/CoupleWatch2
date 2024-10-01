@@ -1,7 +1,7 @@
 import { Tabs } from "@aws-amplify/ui-react";
 import { useAppSelector } from "../../state/hooks";
 import { selectPairings } from "../Partners/pairingsSlice";
-import TvShowAccordion from "../TvShow/TvShowAccordion";
+import TvShowAccordion from "./TvShow/TvShowAccordion";
 import { selectCurrentlyWatching } from "./currentlyWatchingSlice";
 import { useState } from "react";
 import { Partner } from "../Partners/PartnerCard";

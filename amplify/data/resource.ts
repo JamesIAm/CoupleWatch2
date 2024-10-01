@@ -69,15 +69,14 @@ const schema = a.schema({
 	getTvShowEpisodes: a
 		.query()
 		.arguments({ seriesId: a.string() })
-		.returns(
-			a.customType({
-				seasons: a.ref("Season").array().required(),
-				number_of_episodes: a.integer(),
-				number_of_seasons: a.integer(),
-			})
-		)
+		.returns(a.ref("SeasonResponse").required())
 		.handler(a.handler.function(getTvShowEpisodes))
 		.authorization((allow) => [allow.authenticated()]),
+	SeasonResponse: a.customType({
+		seasons: a.ref("Season").required().array().required(),
+		number_of_episodes: a.integer().required(),
+		number_of_seasons: a.integer().required(),
+	}),
 	Season: a.customType({
 		air_date: a.string(),
 		episode_count: a.integer(),

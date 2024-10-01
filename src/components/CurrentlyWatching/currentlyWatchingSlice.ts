@@ -10,16 +10,31 @@ import { AuthUser } from "aws-amplify/auth";
 export interface CurrentlyWatchingState {
 	status: "pending" | "succeeded" | "failed" | "idle";
 	error: string | null;
-	currentlyWatching: Watching[];
+	currentlyWatching: WatchingWithEpisodeData[];
+	episodeData: { [key: string]: SeasonData };
 }
 export type Watching = Schema["Watching"]["type"];
+export type WatchingWithEpisodeData = {
+	show: TvShow;
+	mediaId: string;
+	with: string[];
+	seasons?: Season[];
+	episodeCount?: number;
+	seasonCount?: number;
+	id?: string;
+	createdAt: string;
+	updatedAt: string;
+};
 export type TvShow = Schema["TvShow"]["type"];
+export type SeasonData = Schema["getTvShowEpisodes"]["returnType"];
+export type Season = Schema["Season"]["type"];
 
 // Define the initial state using that type
 const initialState: CurrentlyWatchingState = {
 	status: "idle",
 	error: null,
 	currentlyWatching: [],
+	episodeData: {},
 };
 
 export const currentlyWatchingSlice = createSlice({
@@ -86,7 +101,22 @@ export const updateCurrentlyWatching = createAsyncThunk(
 	"currentlyWatching/update",
 	async () => {
 		console.log("Getting a list of shows currently being watched");
-		return await client.models.Watching.list().then(logErrorsAndReturnData);
+		const watchingList = await client.models.Watching.list().then(
+			logErrorsAndReturnData
+		);
+		return await Promise.all(
+			watchingList.map(async (currentlyWatching) => {
+				const episodes = await getTvShowEpisodes(
+					currentlyWatching.mediaId
+				);
+				return {
+					...currentlyWatching,
+					seasons: episodes.seasons,
+					seasonCount: episodes.number_of_seasons,
+					episodeCount: episodes.number_of_episodes,
+				};
+			})
+		);
 	}
 );
 
@@ -133,6 +163,16 @@ export const removePartnerFromRecord = createAsyncThunk(
 		}).then(logErrorsAndReturnData);
 	}
 );
+
+export const getTvShowEpisodes = async (tvShowId: string) => {
+	console.log("Starting " + tvShowId);
+	return await client.queries
+		.getTvShowEpisodes({
+			seriesId: tvShowId,
+		})
+		.then(logErrorsAndReturnData)
+		.then((nullableEpisodes) => nullableEpisodes);
+};
 
 export const {} = currentlyWatchingSlice.actions;
 export const selectCurrentlyWatching = (state: RootState) =>
