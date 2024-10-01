@@ -1,10 +1,9 @@
 import { Accordion, ScrollView } from "@aws-amplify/ui-react";
 import TvShowAccordionItem from "./TvShowAccordionItem";
-import { TvShow } from "../Search/Search";
-import { selectCurrentlyWatching } from "../CurrentlyWatching/currentlyWatchingSlice";
-import { useAppSelector } from "../../state/hooks";
-import { Partner } from "../Partners/PartnerCard";
-import React from "react";
+import { TvShow } from "../../Search/Search";
+import { selectCurrentlyWatching } from "../currentlyWatchingSlice";
+import { useAppSelector } from "../../../state/hooks";
+import { Partner } from "../../Partners/PartnerCard";
 
 type Props = {
 	tvShows: TvShow[];
@@ -35,25 +34,17 @@ const TvShowAccordion = ({ tvShows, watchingWith }: Props) => {
 		let watchRecords = getWatchRecords(tvShow);
 
 		if (watchRecords.length === 0) {
-			if (watchingWith) {
-				return <React.Fragment key={index}></React.Fragment>;
-			} else {
-				return (
-					<TvShowAccordionItem
-						data={tvShow}
-						watchRecord={null}
-						key={tvShow.id}
-					/>
-				);
-			}
+			throw new Error(
+				"No watch record found for show currently being watched"
+			);
 		}
 		return (
 			<div key={index}>
 				{watchRecords.map((watchRecord) => (
 					<TvShowAccordionItem
 						data={tvShow}
-						key={watchRecord.id}
 						watchRecord={watchRecord}
+						key={watchRecord.id}
 					/>
 				))}
 			</div>

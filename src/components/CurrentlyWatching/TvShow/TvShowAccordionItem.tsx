@@ -4,7 +4,7 @@ import {
 	SwitchField,
 	useAuthenticator,
 } from "@aws-amplify/ui-react";
-import { useAppDispatch, useAppSelector } from "../../state/hooks";
+import { useAppDispatch, useAppSelector } from "../../../state/hooks";
 import {
 	addPartnerToRecord,
 	addWatchingRecord,
@@ -13,14 +13,14 @@ import {
 	TvShow,
 	Watching,
 	WatchingWithEpisodeData,
-} from "../CurrentlyWatching/currentlyWatchingSlice";
-import { selectPairings } from "../Partners/pairingsSlice";
+} from "../currentlyWatchingSlice";
+import { selectPairings } from "../../Partners/pairingsSlice";
 import { useState, useEffect } from "react";
-import { Partner } from "../Partners/PartnerCard";
+import { Partner } from "../../Partners/PartnerCard";
 
 type Props = {
 	data: TvShow;
-	watchRecord: WatchingWithEpisodeData | null | undefined;
+	watchRecord: WatchingWithEpisodeData;
 };
 const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
 	const dispatch = useAppDispatch();
@@ -28,13 +28,11 @@ const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
 	const { user } = useAuthenticator((context) => [context.user]);
 	const [activePartners, setActivePartners] = useState<Partner[]>([]);
 	useEffect(() => {
-		if (watchRecord) {
-			setActivePartners(
-				partners.filter((partner) =>
-					watchRecord.with.includes(partner.username)
-				)
-			);
-		}
+		setActivePartners(
+			partners.filter((partner) =>
+				watchRecord.with.includes(partner.username)
+			)
+		);
 	}, [partners, watchRecord, setActivePartners]);
 
 	const getButtonsForContentBeingWatched = (
@@ -108,6 +106,7 @@ const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
 		<Accordion.Item value={String(data.id)}>
 			<Accordion.Trigger>
 				{data.name} ({data.first_air_date?.substring(0, 4)}){" "}
+				{watchRecord.seasonCount} seasons{" "}
 				{renderPartnersWatchingThisShow()}
 			</Accordion.Trigger>
 
