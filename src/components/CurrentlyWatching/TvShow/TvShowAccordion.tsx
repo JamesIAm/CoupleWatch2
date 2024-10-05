@@ -44,7 +44,7 @@ const TvShowAccordion = ({ tvShows, watchingWith }: Props) => {
 					<TvShowAccordionItem
 						data={tvShow}
 						watchRecord={watchRecord}
-						key={watchRecord.id}
+						key={`${watchRecord.mediaId}-${watchRecord.usersSortedConcatenated}`}
 					/>
 				))}
 			</div>
