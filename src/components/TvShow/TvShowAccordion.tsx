@@ -42,7 +42,7 @@ const TvShowAccordion = ({ tvShows, watchingWith }: Props) => {
 					<TvShowAccordionItem
 						data={tvShow}
 						watchRecord={null}
-						key={tvShow.id}
+						key={index}
 					/>
 				);
 			}
@@ -52,7 +52,7 @@ const TvShowAccordion = ({ tvShows, watchingWith }: Props) => {
 				{watchRecords.map((watchRecord) => (
 					<TvShowAccordionItem
 						data={tvShow}
-						key={watchRecord.id}
+						key={`${watchRecord.mediaId}-${watchRecord.usersSortedConcatenated}`}
 						watchRecord={watchRecord}
 					/>
 				))}

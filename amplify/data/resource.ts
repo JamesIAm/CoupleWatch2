@@ -13,9 +13,13 @@ const schema = a.schema({
 	Watching: a
 		.model({
 			show: a.ref("TvShow").required(),
+			// currentSeason: a.integer(),
+			// currentEpisode: a.integer(),
 			mediaId: a.string().required(),
 			with: a.string().array().required(),
+			usersSortedConcatenated: a.string().required(),
 		})
+		.identifier(["mediaId", "usersSortedConcatenated"])
 		.authorization((allow) => [allow.ownersDefinedIn("with")]),
 
 	Pairing: a
@@ -70,12 +74,20 @@ const schema = a.schema({
 		.query()
 		.arguments({ seriesId: a.string() })
 		.returns(a.ref("SeasonResponse").required())
+		// .returns(a.ref("TvShowDetails").required())
 		.handler(a.handler.function(getTvShowEpisodes))
 		.authorization((allow) => [allow.authenticated()]),
 	SeasonResponse: a.customType({
+		// TvShowDetails: a.customType({
 		seasons: a.ref("Season").required().array().required(),
 		number_of_episodes: a.integer().required(),
 		number_of_seasons: a.integer().required(),
+		// genre_ids: a.integer().array(),
+		// id: a.integer().required(),
+		// overview: a.string(),
+		// poster_path: a.string(),
+		// first_air_date: a.string(),
+		// name: a.string().required(),
 	}),
 	Season: a.customType({
 		air_date: a.string(),
