@@ -10,21 +10,23 @@ import {
 	addWatchingRecord,
 	deleteWatchingRecord,
 	removePartnerFromRecord,
-	TvShow,
 	Watching,
-	WatchingWithEpisodeData,
 } from "../CurrentlyWatching/currentlyWatchingSlice";
 import { selectPairings } from "../Partners/pairingsSlice";
 import { useState, useEffect } from "react";
 import { Partner } from "../Partners/PartnerCard";
+import { selectTvShowDetails, TvShowSkeleton } from "../Search/searchSlice";
 
 type Props = {
-	data: TvShow;
-	watchRecord: WatchingWithEpisodeData | null | undefined;
+	data: TvShowSkeleton;
+	watchRecord: Watching | null | undefined;
 };
 const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
 	const dispatch = useAppDispatch();
 	const partners = useAppSelector((state) => selectPairings(state));
+	const tvShowDetails = useAppSelector((state) =>
+		selectTvShowDetails(state, data.mediaId)
+	);
 	const { user } = useAuthenticator((context) => [context.user]);
 	const [activePartners, setActivePartners] = useState<Partner[]>([]);
 	useEffect(() => {
@@ -37,15 +39,11 @@ const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
 		}
 	}, [partners, watchRecord, setActivePartners]);
 
-	const getButtonsForContentBeingWatched = (
-		activeWatchRecord: WatchingWithEpisodeData
-	) => (
+	const getButtonsForContentBeingWatched = (activeWatchRecord: Watching) => (
 		<>
 			<Button
 				onClick={() =>
-					dispatch(
-						deleteWatchingRecord(activeWatchRecord as Watching)
-					)
+					dispatch(deleteWatchingRecord(activeWatchRecord))
 				}
 			>
 				Stop watching
@@ -57,13 +55,13 @@ const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
 					isWatchingThisShowWithCurrentUser
 						? dispatch(
 								removePartnerFromRecord({
-									data: activeWatchRecord as Watching,
+									data: activeWatchRecord,
 									pairing: partner,
 								})
 						  )
 						: dispatch(
 								addPartnerToRecord({
-									data: activeWatchRecord as Watching,
+									data: activeWatchRecord,
 									pairing: partner,
 								})
 						  );
@@ -81,7 +79,11 @@ const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
 	);
 
 	const getButtonsForContentNotBeingWatched = () => (
-		<Button onClick={() => dispatch(addWatchingRecord({ data, user }))}>
+		<Button
+			onClick={() =>
+				dispatch(addWatchingRecord({ mediaId: data.mediaId, user }))
+			}
+		>
 			Start watching
 		</Button>
 	);
@@ -105,14 +107,14 @@ const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
 	};
 
 	return (
-		<Accordion.Item value={String(data.id)}>
+		<Accordion.Item value={String(data.mediaId)}>
 			<Accordion.Trigger>
-				{data.name} ({data.first_air_date?.substring(0, 4)}){" "}
+				{data.name} ({data.firstAirDate?.substring(0, 4)}){" "}
 				{renderPartnersWatchingThisShow()}
 			</Accordion.Trigger>
 
 			<Accordion.Content>
-				{data.overview}
+				{tvShowDetails?.overview}
 				<br />
 				{renderWatchingInfo()}
 				{watchRecord

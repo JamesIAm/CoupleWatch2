@@ -12,9 +12,6 @@ specifies that any user authenticated via an API key can "create", "read",
 const schema = a.schema({
 	Watching: a
 		.model({
-			show: a.ref("TvShow").required(),
-			// currentSeason: a.integer(),
-			// currentEpisode: a.integer(),
 			mediaId: a.string().required(),
 			with: a.string().array().required(),
 			usersSortedConcatenated: a.string().required(),
@@ -47,7 +44,7 @@ const schema = a.schema({
 		.returns(
 			a.customType({
 				page: a.integer(),
-				results: a.ref("TvShow").array().required(),
+				results: a.ref("TvShow").required().array().required(),
 				total_pages: a.integer(),
 				total_results: a.integer(),
 			})
@@ -55,39 +52,37 @@ const schema = a.schema({
 		.handler(a.handler.function(searchTvShows))
 		.authorization((allow) => [allow.authenticated()]),
 	TvShow: a.customType({
-		adult: a.boolean(),
-		backdrop_path: a.string(),
-		genre_ids: a.integer().array(),
+		// adult: a.boolean(),
+		// backdrop_path: a.string(),
+		// genre_ids: a.integer().array(),
 		id: a.integer().required(),
-		origin_country: a.string().array(),
-		original_language: a.string(),
-		original_name: a.string(),
-		overview: a.string(),
-		popularity: a.float(),
+		// origin_country: a.string().array(),
+		// original_language: a.string(),
+		// original_name: a.string(),
+		// overview: a.string(),
+		// popularity: a.float(),
 		poster_path: a.string(),
 		first_air_date: a.string(),
 		name: a.string().required(),
-		vote_average: a.float(),
-		vote_count: a.integer(),
+		// vote_average: a.float(),
+		// vote_count: a.integer(),
 	}),
 	getTvShowEpisodes: a
 		.query()
 		.arguments({ seriesId: a.string() })
-		.returns(a.ref("SeasonResponse").required())
-		// .returns(a.ref("TvShowDetails").required())
+		.returns(a.ref("TvShowDetails").required())
 		.handler(a.handler.function(getTvShowEpisodes))
 		.authorization((allow) => [allow.authenticated()]),
-	SeasonResponse: a.customType({
-		// TvShowDetails: a.customType({
+	TvShowDetails: a.customType({
 		seasons: a.ref("Season").required().array().required(),
 		number_of_episodes: a.integer().required(),
 		number_of_seasons: a.integer().required(),
-		// genre_ids: a.integer().array(),
-		// id: a.integer().required(),
-		// overview: a.string(),
-		// poster_path: a.string(),
-		// first_air_date: a.string(),
-		// name: a.string().required(),
+		genre_ids: a.integer().array(),
+		id: a.integer().required(),
+		overview: a.string(),
+		poster_path: a.string(),
+		first_air_date: a.string(),
+		name: a.string().required(),
 	}),
 	Season: a.customType({
 		air_date: a.string(),
