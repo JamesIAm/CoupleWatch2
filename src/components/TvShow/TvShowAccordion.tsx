@@ -1,37 +1,30 @@
 import { Accordion, ScrollView } from "@aws-amplify/ui-react";
 import TvShowAccordionItem from "./TvShowAccordionItem";
-import { TvShow } from "../Search/Search";
 import { selectCurrentlyWatching } from "../CurrentlyWatching/currentlyWatchingSlice";
 import { useAppSelector } from "../../state/hooks";
 import { Partner } from "../Partners/PartnerCard";
 import React from "react";
+import { TvShowSkeleton } from "../Search/searchSlice";
 
 type Props = {
-	tvShows: TvShow[];
+	tvShows: TvShowSkeleton[];
 	watchingWith: Partner[] | undefined;
 };
 
 const TvShowAccordion = ({ tvShows, watchingWith }: Props) => {
 	const currentlyWatching = useAppSelector(selectCurrentlyWatching);
-	const getWatchRecords = (tvShow: TvShow) => {
+	const getWatchRecords = (tvShow: TvShowSkeleton) => {
 		let watchRecords = currentlyWatching.filter(
-			(show) => show.mediaId === String(tvShow.id)
+			(show) => show.mediaId === tvShow.mediaId
 		);
-		if (!watchingWith) {
-			return watchRecords;
-		}
-		return watchRecords.filter((record) => {
-			const includesAllUsers = watchingWith.reduce(
-				(watchRecordIncludesPeopleWatchingWith, personWatchingWith) =>
-					watchRecordIncludesPeopleWatchingWith &&
-					record.with.includes(personWatchingWith.username),
-				true
-			);
-			return includesAllUsers;
-		});
+
+		return watchRecords;
 	};
 
-	const getAllListingsForATvShow = (tvShow: TvShow, index: number) => {
+	const getAllListingsForATvShow = (
+		tvShow: TvShowSkeleton,
+		index: number
+	) => {
 		let watchRecords = getWatchRecords(tvShow);
 
 		if (watchRecords.length === 0) {
@@ -42,7 +35,7 @@ const TvShowAccordion = ({ tvShows, watchingWith }: Props) => {
 					<TvShowAccordionItem
 						data={tvShow}
 						watchRecord={null}
-						key={index}
+						key={tvShow.mediaId}
 					/>
 				);
 			}
@@ -52,7 +45,7 @@ const TvShowAccordion = ({ tvShows, watchingWith }: Props) => {
 				{watchRecords.map((watchRecord) => (
 					<TvShowAccordionItem
 						data={tvShow}
-						key={`${watchRecord.mediaId}-${watchRecord.usersSortedConcatenated}`}
+						key={watchRecord.mediaId}
 						watchRecord={watchRecord}
 					/>
 				))}

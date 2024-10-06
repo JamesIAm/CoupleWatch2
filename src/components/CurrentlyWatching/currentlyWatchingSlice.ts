@@ -5,6 +5,7 @@ import { Schema } from "../../../amplify/data/resource";
 import { Pairing } from "../Partners/pairingsSlice";
 import { logErrorsAndReturnData } from "../../utils/ClientUtils";
 import { AuthUser } from "aws-amplify/auth";
+import { getTvShowDetails } from "../Search/searchSlice";
 
 // Define a type for the slice state
 export interface CurrentlyWatchingState {
@@ -137,33 +138,29 @@ const client = generateClient<Schema>();
 
 export const updateCurrentlyWatching = createAsyncThunk(
 	"currentlyWatching/update",
-	async () => {
+	async ({}, { dispatch }) => {
 		console.log("Getting a list of shows currently being watched");
-		const watchingList = await client.models.Watching.list().then(
-			logErrorsAndReturnData
-		);
-		return await Promise.all(
-			watchingList.map(async (currentlyWatching) => {
-				const episodes = await getTvShowEpisodes(
-					currentlyWatching.mediaId
+		return await client.models.Watching.list()
+			.then(logErrorsAndReturnData)
+			.then((data) => {
+				console.log(data);
+				dispatch(
+					getTvShowDetails(
+						data.map(
+							(currentlyWatching) => currentlyWatching.mediaId
+						)
+					)
 				);
-				return {
-					...currentlyWatching,
-					seasons: episodes.seasons,
-					seasonCount: episodes.number_of_seasons,
-					episodeCount: episodes.number_of_episodes,
-				};
-			})
-		);
+				return data;
+			});
 	}
 );
 
 export const addWatchingRecord = createAsyncThunk(
 	"currentlyWatching/add",
-	async ({ data, user }: { data: TvShow; user: AuthUser }) => {
+	async ({ mediaId, user }: { mediaId: string; user: AuthUser }) => {
 		return client.models.Watching.create({
-			show: data,
-			mediaId: String(data.id),
+			mediaId: mediaId,
 			with: [user.username],
 			usersSortedConcatenated: user.username,
 		}).then(logErrorsAndReturnData);
@@ -209,7 +206,6 @@ const updateWatchingRecordWithNewMembers = async (
 	} else {
 		promiseOfNewRecord = client.models.Watching.create({
 			mediaId: data.mediaId,
-			show: data.show,
 			with: newMembers,
 			usersSortedConcatenated: sortAndConcatenateUsers(newMembers),
 		})
@@ -240,16 +236,6 @@ export const removePartnerFromRecord = createAsyncThunk(
 		return updateWatchingRecordWithNewMembers(data, newMembers);
 	}
 );
-
-export const getTvShowEpisodes = async (tvShowId: string) => {
-	console.log("Starting " + tvShowId);
-	return await client.queries
-		.getTvShowEpisodes({
-			seriesId: tvShowId,
-		})
-		.then(logErrorsAndReturnData)
-		.then((nullableEpisodes) => nullableEpisodes);
-};
 
 export const {} = currentlyWatchingSlice.actions;
 export const selectCurrentlyWatching = (state: RootState) =>
