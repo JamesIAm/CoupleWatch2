@@ -5,9 +5,9 @@ import { useState, useEffect } from "react";
 import { Partner } from "../Partners/PartnerCard";
 import { useGetTvShowDetailsQuery } from "./tvShowDetails";
 import { Watching } from "../CurrentlyWatching/currentlyWatching";
-import { TvShowSkeleton } from "../Search/searchSlice";
 import PartnerButtons from "./PartnerButtons";
 import WatchingButtons from "./WatchingButtons";
+import { TvShowSkeleton } from "../Search/searchResults";
 
 export type AccordionTvShow =
 	| {

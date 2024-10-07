@@ -1,18 +1,22 @@
 import SearchBar from "./SearchBar";
 import { Schema } from "../../../amplify/data/resource";
-import { useAppSelector } from "../../state/hooks";
-import { selectSearchResults } from "./searchSlice";
 import { useGetCurrentlyWatchingQuery } from "../CurrentlyWatching/currentlyWatching";
 import { AccordionTvShow } from "../TvShow/TvShowAccordionItem";
 import TvShowAccordion from "../TvShow/TvShowAccordion";
+import { useState } from "react";
+import { useSearchQuery } from "./searchResults";
 
 type Props = {};
 export type TvShow = Schema["TvShow"]["type"];
 
 const Search = ({}: Props) => {
-	const searchResults = useAppSelector(selectSearchResults);
+	const [searchTerm, setSearchTerm] = useState<string>("");
+	const { data: searchResults } = useSearchQuery(searchTerm);
 	const { data: currentlyWatching } = useGetCurrentlyWatchingQuery();
 	const mapTvShowsToCurrentlyWatchingRecords = (): AccordionTvShow[] => {
+		if (!searchResults) {
+			return [];
+		}
 		return searchResults.map((searchResult) => {
 			const watchRecord = currentlyWatching?.find(
 				(watchRecord) => watchRecord.mediaId === searchResult.mediaId
@@ -32,7 +36,7 @@ const Search = ({}: Props) => {
 	};
 	return (
 		<>
-			<SearchBar />
+			<SearchBar setSearchTerm={setSearchTerm} />
 			<TvShowAccordion tvShows={mapTvShowsToCurrentlyWatchingRecords()} />
 		</>
 	);
