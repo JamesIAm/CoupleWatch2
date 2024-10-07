@@ -1,8 +1,7 @@
-import { Accordion, Button, SwitchField } from "@aws-amplify/ui-react";
+import { Accordion, Button, Loader, SwitchField } from "@aws-amplify/ui-react";
 import { useAppDispatch, useAppSelector } from "../../../state/hooks";
 import {
 	addPartnerToRecord,
-	deleteWatchingRecord,
 	removePartnerFromRecord,
 	Watching,
 } from "../currentlyWatchingSlice";
@@ -10,6 +9,10 @@ import { selectPairings } from "../../Partners/pairingsSlice";
 import { useState, useEffect } from "react";
 import { Partner } from "../../Partners/PartnerCard";
 import { useGetTvShowDetailsQuery } from "../../TvShow/tvShowDetails";
+import {
+	useStartWatchingMutation,
+	useStopWatchingMutation,
+} from "../currentlyWatching";
 
 type Props = {
 	data: Watching;
@@ -17,6 +20,10 @@ type Props = {
 const TvShowAccordionItem = ({ data }: Props) => {
 	const dispatch = useAppDispatch();
 	const partners = useAppSelector((state) => selectPairings(state));
+	const [_startWatching, { isLoading: startWatchingUpdating }] =
+		useStartWatchingMutation();
+	const [stopWatching, { isLoading: stopWatchingUpdating }] =
+		useStopWatchingMutation();
 	const [activePartners, setActivePartners] = useState<Partner[]>([]);
 	const tvShowDetails = useGetTvShowDetailsQuery(data.mediaId);
 	useEffect(() => {
@@ -28,11 +35,14 @@ const TvShowAccordionItem = ({ data }: Props) => {
 	const getButtonsForContentBeingWatched = (activeWatchRecord: Watching) => (
 		<>
 			<Button
-				onClick={() =>
-					dispatch(deleteWatchingRecord(activeWatchRecord))
-				}
+				onClick={() => stopWatching(activeWatchRecord)}
+				isDisabled={startWatchingUpdating || stopWatchingUpdating}
 			>
-				Stop watching
+				{startWatchingUpdating || stopWatchingUpdating ? (
+					<Loader />
+				) : (
+					"Stop watching"
+				)}
 			</Button>
 			{partners.map((partner) => {
 				const isWatchingThisShowWithCurrentUser =

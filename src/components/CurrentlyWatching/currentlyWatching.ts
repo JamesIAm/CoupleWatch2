@@ -41,8 +41,23 @@ export const currentlyWatchingApi = createApi({
 				{ type: "WatchRecord", id: "LIST" },
 			],
 		}),
+		stopWatching: builder.mutation<Watching, Watching>({
+			queryFn: async ({ mediaId, usersSortedConcatenated }) => {
+				const response = await client.models.Watching.delete({
+					mediaId,
+					usersSortedConcatenated,
+				});
+				return logErrorsAndReturnDataAndErrors(response);
+			},
+			invalidatesTags: (_result, _error, _arg) => [
+				{ type: "WatchRecord", id: "LIST" },
+			],
+		}),
 	}),
 });
 
-export const { useGetCurrentlyWatchingQuery, useStartWatchingMutation } =
-	currentlyWatchingApi;
+export const {
+	useGetCurrentlyWatchingQuery,
+	useStartWatchingMutation,
+	useStopWatchingMutation,
+} = currentlyWatchingApi;
