@@ -48,8 +48,8 @@ export const currentlyWatchingApi = createApi({
 				{ type: "WatchRecord", id: "LIST" },
 			],
 		}),
-		stopWatching: builder.mutation<Watching, Watching>({
-			queryFn: async ({ id }) => {
+		stopWatching: builder.mutation<Watching, string>({
+			queryFn: async (id) => {
 				try {
 					const response = await client.models.Watching.delete({
 						id,

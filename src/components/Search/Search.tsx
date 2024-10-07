@@ -33,10 +33,7 @@ const Search = ({}: Props) => {
 	return (
 		<>
 			<SearchBar />
-			<TvShowAccordion
-				tvShows={mapTvShowsToCurrentlyWatchingRecords()}
-				watchingWith={undefined}
-			/>
+			<TvShowAccordion tvShows={mapTvShowsToCurrentlyWatchingRecords()} />
 		</>
 	);
 };

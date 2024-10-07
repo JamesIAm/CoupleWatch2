@@ -1,10 +1,8 @@
 import { Accordion, ScrollView } from "@aws-amplify/ui-react";
 import TvShowAccordionItem, { AccordionTvShow } from "./TvShowAccordionItem";
-import { Partner } from "../Partners/PartnerCard";
 
 type Props = {
 	tvShows: AccordionTvShow[];
-	watchingWith: Partner[] | undefined;
 };
 
 const TvShowAccordion = ({ tvShows }: Props) => {
