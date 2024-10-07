@@ -24,7 +24,6 @@ const PartnerSearch = ({}: Props) => {
 	});
 
 	const { user } = useAuthenticator((context) => [context.user]);
-	console.log(searchedPartner);
 	const searchForUser = (email: string) => {
 		setSearchedPartner({ state: "searching" });
 		client.queries.searchUser({ email: email }).then((res) => {

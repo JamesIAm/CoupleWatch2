@@ -96,7 +96,6 @@ const client = generateClient<Schema>();
 export const updatePairings = createAsyncThunk(
 	"pairings/update",
 	async (currentUser: AuthUser) => {
-		console.log("Getting the list of current pairings");
 		return await client.models.Pairing.list()
 			.then(logErrorsAndReturnData)
 			.then((data) => {
