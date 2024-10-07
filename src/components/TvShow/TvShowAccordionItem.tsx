@@ -5,12 +5,7 @@ import {
 	SwitchField,
 	useAuthenticator,
 } from "@aws-amplify/ui-react";
-import { useAppDispatch, useAppSelector } from "../../state/hooks";
-import {
-	addPartnerToRecord,
-	removePartnerFromRecord,
-	Watching,
-} from "../CurrentlyWatching/currentlyWatchingSlice";
+import { useAppSelector } from "../../state/hooks";
 import { selectPairings } from "../Partners/pairingsSlice";
 import { useState, useEffect } from "react";
 import { Partner } from "../Partners/PartnerCard";
@@ -18,7 +13,10 @@ import { TvShowSkeleton } from "../Search/searchSlice";
 import { useGetTvShowDetailsQuery } from "./tvShowDetails";
 import {
 	useStartWatchingMutation,
+	useStartWatchingWithMutation,
 	useStopWatchingMutation,
+	useStopWatchingWithMutation,
+	Watching,
 } from "../CurrentlyWatching/currentlyWatching";
 
 type Props = {
@@ -26,12 +24,15 @@ type Props = {
 	watchRecord: Watching | null | undefined;
 };
 const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
-	const dispatch = useAppDispatch();
 	const partners = useAppSelector((state) => selectPairings(state));
 	const [startWatching, { isLoading: startWatchingUpdating }] =
 		useStartWatchingMutation();
 	const [stopWatching, { isLoading: stopWatchingUpdating }] =
 		useStopWatchingMutation();
+	const [startWatchingWith, { isLoading: startWatchingWithUpdating }] =
+		useStartWatchingWithMutation();
+	const [stopWatchingWith, { isLoading: stopWatchingWithUpdating }] =
+		useStopWatchingWithMutation();
 	const tvShowDetails = useGetTvShowDetailsQuery(data.mediaId);
 	const { user } = useAuthenticator((context) => [context.user]);
 	const [activePartners, setActivePartners] = useState<Partner[]>([]);
@@ -57,29 +58,30 @@ const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
 					"Stop watching"
 				)}
 			</Button>
-			{partners.map((partner) => {
+			{partners.map((pairing) => {
 				const isWatchingThisShowWithCurrentUser =
-					activeWatchRecord.with.includes(partner.username);
+					activeWatchRecord.with.includes(pairing.username);
 				const changeRecord = () =>
 					isWatchingThisShowWithCurrentUser
-						? dispatch(
-								removePartnerFromRecord({
-									data: activeWatchRecord,
-									pairing: partner,
-								})
-						  )
-						: dispatch(
-								addPartnerToRecord({
-									data: activeWatchRecord,
-									pairing: partner,
-								})
-						  );
+						? stopWatchingWith({
+								watchRecord: activeWatchRecord,
+								partnerToRemove: pairing,
+						  })
+						: startWatchingWith({
+								watchRecord: activeWatchRecord,
+								partnerToAdd: pairing,
+						  });
+
 				return (
 					<SwitchField
-						key={partner.username}
+						key={pairing.username}
 						labelPosition="start"
-						label={partner.email}
+						label={pairing.email}
 						isChecked={isWatchingThisShowWithCurrentUser}
+						isDisabled={
+							startWatchingWithUpdating ||
+							stopWatchingWithUpdating
+						}
 						onChange={changeRecord}
 					/>
 				);
@@ -129,7 +131,7 @@ const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
 				{tvShowDetails?.currentData?.overview}
 				<br />
 				{renderWatchingInfo()}
-				{watchRecord
+				{watchRecord !== null && watchRecord !== undefined
 					? getButtonsForContentBeingWatched(watchRecord)
 					: getButtonsForContentNotBeingWatched()}
 			</Accordion.Content>

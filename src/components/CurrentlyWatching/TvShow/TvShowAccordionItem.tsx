@@ -1,29 +1,30 @@
 import { Accordion, Button, Loader, SwitchField } from "@aws-amplify/ui-react";
-import { useAppDispatch, useAppSelector } from "../../../state/hooks";
-import {
-	addPartnerToRecord,
-	removePartnerFromRecord,
-	Watching,
-} from "../currentlyWatchingSlice";
+import { useAppSelector } from "../../../state/hooks";
 import { selectPairings } from "../../Partners/pairingsSlice";
 import { useState, useEffect } from "react";
 import { Partner } from "../../Partners/PartnerCard";
 import { useGetTvShowDetailsQuery } from "../../TvShow/tvShowDetails";
 import {
 	useStartWatchingMutation,
+	useStartWatchingWithMutation,
 	useStopWatchingMutation,
+	useStopWatchingWithMutation,
+	Watching,
 } from "../currentlyWatching";
 
 type Props = {
 	data: Watching;
 };
 const TvShowAccordionItem = ({ data }: Props) => {
-	const dispatch = useAppDispatch();
 	const partners = useAppSelector((state) => selectPairings(state));
 	const [_startWatching, { isLoading: startWatchingUpdating }] =
 		useStartWatchingMutation();
 	const [stopWatching, { isLoading: stopWatchingUpdating }] =
 		useStopWatchingMutation();
+	const [startWatchingWith, { isLoading: startWatchingWithUpdating }] =
+		useStartWatchingWithMutation();
+	const [stopWatchingWith, { isLoading: stopWatchingWithUpdating }] =
+		useStopWatchingWithMutation();
 	const [activePartners, setActivePartners] = useState<Partner[]>([]);
 	const tvShowDetails = useGetTvShowDetailsQuery(data.mediaId);
 	useEffect(() => {
@@ -32,10 +33,10 @@ const TvShowAccordionItem = ({ data }: Props) => {
 		);
 	}, [partners, data, setActivePartners]);
 
-	const getButtonsForContentBeingWatched = (activeWatchRecord: Watching) => (
+	const getButtonsForContentBeingWatched = (watchRecord: Watching) => (
 		<>
 			<Button
-				onClick={() => stopWatching(activeWatchRecord)}
+				onClick={() => stopWatching(watchRecord)}
 				isDisabled={startWatchingUpdating || stopWatchingUpdating}
 			>
 				{startWatchingUpdating || stopWatchingUpdating ? (
@@ -44,29 +45,30 @@ const TvShowAccordionItem = ({ data }: Props) => {
 					"Stop watching"
 				)}
 			</Button>
-			{partners.map((partner) => {
+			{partners.map((pairing) => {
 				const isWatchingThisShowWithCurrentUser =
-					activeWatchRecord.with.includes(partner.username);
+					watchRecord.with.includes(pairing.username);
 				const changeRecord = () =>
 					isWatchingThisShowWithCurrentUser
-						? dispatch(
-								removePartnerFromRecord({
-									data: activeWatchRecord as Watching,
-									pairing: partner,
-								})
-						  )
-						: dispatch(
-								addPartnerToRecord({
-									data: activeWatchRecord as Watching,
-									pairing: partner,
-								})
-						  );
+						? stopWatchingWith({
+								watchRecord,
+								partnerToRemove: pairing,
+						  })
+						: startWatchingWith({
+								watchRecord,
+								partnerToAdd: pairing,
+						  });
+
 				return (
 					<SwitchField
-						key={partner.username}
+						key={pairing.username}
 						labelPosition="start"
-						label={partner.email}
+						label={pairing.email}
 						isChecked={isWatchingThisShowWithCurrentUser}
+						isDisabled={
+							startWatchingWithUpdating ||
+							stopWatchingWithUpdating
+						}
 						onChange={changeRecord}
 					/>
 				);
