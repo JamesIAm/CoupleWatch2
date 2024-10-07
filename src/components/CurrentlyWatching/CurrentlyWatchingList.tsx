@@ -1,28 +1,49 @@
 import { Loader, Tabs } from "@aws-amplify/ui-react";
 import { useAppSelector } from "../../state/hooks";
 import { selectPairings } from "../Partners/pairingsSlice";
-import TvShowAccordion from "./TvShow/TvShowAccordion";
+import TvShowAccordion from "../TvShow/TvShowAccordion";
 import { useState } from "react";
 import { Partner } from "../Partners/PartnerCard";
 import { useGetCurrentlyWatchingQuery } from "./currentlyWatching";
+import { AccordionTvShow } from "../TvShow/TvShowAccordionItem";
 
 type Props = {};
 const CurrentlyWatchingList = ({}: Props) => {
-	const { data, isLoading } = useGetCurrentlyWatchingQuery();
-	const currentlyWatching = data;
+	const { data: currentlyWatching, isLoading } =
+		useGetCurrentlyWatchingQuery();
 	const pairings = useAppSelector(selectPairings);
-	const [tab, setTab] = useState<Partner | undefined>(undefined);
+	const [watchingWith, setWatchingWith] = useState<Partner | undefined>(
+		undefined
+	);
 
-	console.log(currentlyWatching);
+	const getTvShowsForCurrentFilters = (): AccordionTvShow[] => {
+		if (!currentlyWatching) {
+			return [];
+		}
+		var toReturn;
+		if (!watchingWith) {
+			toReturn = currentlyWatching;
+		} else {
+			toReturn = currentlyWatching.filter((tvShow) =>
+				tvShow.with.includes(watchingWith.username)
+			);
+		}
+		return toReturn.map((watchRecord) => {
+			return { data: watchRecord, isWatching: true };
+		});
+	};
+
 	return (
 		<div>
 			<h1>CurrentlyWatchingList</h1>
 			<Tabs
 				onValueChange={(tab) => {
-					if (tab === "All") setTab(undefined);
-					setTab(pairings.find((pairing) => pairing.email === tab));
+					if (tab === "All") setWatchingWith(undefined);
+					setWatchingWith(
+						pairings.find((pairing) => pairing.email === tab)
+					);
 				}}
-				value={tab ? tab.email : "All"}
+				value={watchingWith ? watchingWith.email : "All"}
 				items={[
 					{
 						label: "All",
@@ -42,8 +63,8 @@ const CurrentlyWatchingList = ({}: Props) => {
 				<Loader />
 			) : currentlyWatching ? (
 				<TvShowAccordion
-					tvShows={[...currentlyWatching]}
-					watchingWith={tab ? [tab] : tab}
+					tvShows={getTvShowsForCurrentFilters()}
+					watchingWith={watchingWith ? [watchingWith] : watchingWith}
 				/>
 			) : (
 				<></>
