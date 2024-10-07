@@ -41,12 +41,6 @@ export const currentlyWatchingSlice = createSlice({
 	reducers: {},
 	extraReducers: (builder) => {
 		builder
-			.addCase(deleteWatchingRecord.fulfilled, (state, action) => {
-				state.currentlyWatching = state.currentlyWatching.filter(
-					(currentlyWatching) =>
-						currentlyWatching.mediaId !== action.payload.mediaId
-				);
-			})
 			.addCase(addPartnerToRecord.fulfilled, (state, action) => {
 				const oldRecord = action.payload.deletedRecord;
 				const currentStateWithoutOldRecord =
@@ -113,13 +107,6 @@ export const currentlyWatchingSlice = createSlice({
 });
 
 const client = generateClient<Schema>();
-
-export const deleteWatchingRecord = createAsyncThunk(
-	"currentlyWatching/delete",
-	async (data: Watching) => {
-		return client.models.Watching.delete(data).then(logErrorsAndReturnData);
-	}
-);
 
 export const addPartnerToRecord = createAsyncThunk(
 	"currentlyWatching/with/add",

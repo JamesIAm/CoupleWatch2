@@ -8,7 +8,6 @@ import {
 import { useAppDispatch, useAppSelector } from "../../state/hooks";
 import {
 	addPartnerToRecord,
-	deleteWatchingRecord,
 	removePartnerFromRecord,
 	Watching,
 } from "../CurrentlyWatching/currentlyWatchingSlice";
@@ -17,7 +16,10 @@ import { useState, useEffect } from "react";
 import { Partner } from "../Partners/PartnerCard";
 import { TvShowSkeleton } from "../Search/searchSlice";
 import { useGetTvShowDetailsQuery } from "./tvShowDetails";
-import { useStartWatchingMutation } from "../CurrentlyWatching/currentlyWatching";
+import {
+	useStartWatchingMutation,
+	useStopWatchingMutation,
+} from "../CurrentlyWatching/currentlyWatching";
 
 type Props = {
 	data: TvShowSkeleton;
@@ -28,6 +30,8 @@ const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
 	const partners = useAppSelector((state) => selectPairings(state));
 	const [startWatching, { isLoading: startWatchingUpdating }] =
 		useStartWatchingMutation();
+	const [stopWatching, { isLoading: stopWatchingUpdating }] =
+		useStopWatchingMutation();
 	const tvShowDetails = useGetTvShowDetailsQuery(data.mediaId);
 	const { user } = useAuthenticator((context) => [context.user]);
 	const [activePartners, setActivePartners] = useState<Partner[]>([]);
@@ -44,11 +48,14 @@ const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
 	const getButtonsForContentBeingWatched = (activeWatchRecord: Watching) => (
 		<>
 			<Button
-				onClick={() =>
-					dispatch(deleteWatchingRecord(activeWatchRecord))
-				}
+				onClick={() => stopWatching(activeWatchRecord)}
+				isDisabled={startWatchingUpdating || stopWatchingUpdating}
 			>
-				Stop watching
+				{startWatchingUpdating || stopWatchingUpdating ? (
+					<Loader />
+				) : (
+					"Stop watching"
+				)}
 			</Button>
 			{partners.map((partner) => {
 				const isWatchingThisShowWithCurrentUser =
@@ -83,9 +90,13 @@ const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
 	const getButtonsForContentNotBeingWatched = () => (
 		<Button
 			onClick={() => startWatching({ mediaId: data.mediaId, user })}
-			isDisabled={startWatchingUpdating}
+			isDisabled={startWatchingUpdating || stopWatchingUpdating}
 		>
-			{startWatchingUpdating ? <Loader /> : "Start watching"}
+			{startWatchingUpdating || stopWatchingUpdating ? (
+				<Loader />
+			) : (
+				"Start watching"
+			)}
 		</Button>
 	);
 
