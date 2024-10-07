@@ -38,7 +38,6 @@ export const currentlyWatchingApi = createApi({
 					const response = await client.models.Watching.create({
 						mediaId: mediaId,
 						with: [user.username],
-						usersSortedConcatenated: user.username,
 					});
 					return logErrorsAndReturnDataAndErrors(response);
 				} catch (error) {
@@ -50,11 +49,10 @@ export const currentlyWatchingApi = createApi({
 			],
 		}),
 		stopWatching: builder.mutation<Watching, Watching>({
-			queryFn: async ({ mediaId, usersSortedConcatenated }) => {
+			queryFn: async ({ id }) => {
 				try {
 					const response = await client.models.Watching.delete({
-						mediaId,
-						usersSortedConcatenated,
+						id,
 					});
 					return logErrorsAndReturnDataAndErrors(response);
 				} catch (error) {
@@ -75,8 +73,6 @@ export const currentlyWatchingApi = createApi({
 			}) => {
 				try {
 					const newMembers = [...watchRecord.with, partnerToAdd];
-					console.log("new memebers");
-					console.log(newMembers);
 					const data = await updateWatchingRecordWithNewMembers(
 						watchRecord,
 						newMembers
@@ -119,48 +115,13 @@ export const currentlyWatchingApi = createApi({
 });
 
 const updateWatchingRecordWithNewMembers = async (
-	{ mediaId, usersSortedConcatenated: oldMembersConcatenated }: Watching,
+	watchRecord: Watching,
 	newMembers: string[]
 ) => {
-	console.log("starting update of users");
-	const newMembersConcatenated = sortAndConcatenateUsers(newMembers);
-	const recordWithNewKey = await client.models.Watching.get({
-		mediaId,
-		usersSortedConcatenated: newMembersConcatenated,
-	}).then((result) => {
-		if (result.errors) {
-			result.errors.forEach(console.error);
-			throw new Error(result.errors[0].message);
-		}
-		return result.data;
-	});
-	console.log("got record with new key");
-	if (recordWithNewKey) {
-		await client.models.Watching.delete({
-			mediaId,
-			usersSortedConcatenated: newMembersConcatenated,
-		}).then(logErrorsAndReturnData);
-		console.log("deleted record with new key");
-	}
-	const newWatchRecord = await client.models.Watching.create({
-		mediaId,
+	return await client.models.Watching.update({
+		...watchRecord,
 		with: newMembers,
-		usersSortedConcatenated: newMembersConcatenated,
 	}).then(logErrorsAndReturnData);
-
-	console.log("made new record");
-	console.log(newWatchRecord);
-	await client.models.Watching.delete({
-		mediaId,
-		usersSortedConcatenated: oldMembersConcatenated,
-	}).then(logErrorsAndReturnData);
-
-	console.log("deleted old record");
-	return newWatchRecord;
-};
-
-const sortAndConcatenateUsers = (users: string[]) => {
-	return users.sort().join(",");
 };
 
 export const {

@@ -14,9 +14,7 @@ const schema = a.schema({
 		.model({
 			mediaId: a.string().required(),
 			with: a.string().array().required(),
-			usersSortedConcatenated: a.string().required(),
 		})
-		.identifier(["mediaId", "usersSortedConcatenated"])
 		.authorization((allow) => [allow.ownersDefinedIn("with")]),
 
 	Pairing: a
