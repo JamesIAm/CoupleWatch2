@@ -2,6 +2,8 @@ import { configureStore } from "@reduxjs/toolkit";
 import pairingReducer from "../components/Partners/pairingsSlice";
 import currentlyWatchingReducer from "../components/CurrentlyWatching/currentlyWatchingSlice";
 import searchReducer from "../components/Search/searchSlice";
+import { tvShowDetailsApi } from "../components/TvShow/tvShowDetails";
+
 // ...
 
 export const store = configureStore({
@@ -9,7 +11,9 @@ export const store = configureStore({
 		pairings: pairingReducer,
 		currentlyWatching: currentlyWatchingReducer,
 		search: searchReducer,
+		[tvShowDetailsApi.reducerPath]: tvShowDetailsApi.reducer,
 	},
+	middleware: (gDM) => gDM().concat(tvShowDetailsApi.middleware),
 });
 
 // Infer the `RootState`,  `AppDispatch`, and `AppStore` types from the store itself

@@ -5,14 +5,12 @@ import { Schema } from "../../../amplify/data/resource";
 import { Pairing } from "../Partners/pairingsSlice";
 import { logErrorsAndReturnData } from "../../utils/ClientUtils";
 import { AuthUser } from "aws-amplify/auth";
-import { getTvShowDetails } from "../Search/searchSlice";
 
 // Define a type for the slice state
 export interface CurrentlyWatchingState {
 	status: "pending" | "succeeded" | "failed" | "idle";
 	error: string | null;
 	currentlyWatching: Watching[];
-	episodeData: { [key: string]: SeasonData };
 }
 export type Watching = Schema["Watching"]["type"];
 export type WatchingWithEpisodeData = {
@@ -35,7 +33,6 @@ const initialState: CurrentlyWatchingState = {
 	status: "idle",
 	error: null,
 	currentlyWatching: [],
-	episodeData: {},
 };
 
 export const currentlyWatchingSlice = createSlice({
@@ -138,21 +135,9 @@ const client = generateClient<Schema>();
 
 export const updateCurrentlyWatching = createAsyncThunk(
 	"currentlyWatching/update",
-	async ({}, { dispatch }) => {
+	async () => {
 		console.log("Getting a list of shows currently being watched");
-		return await client.models.Watching.list()
-			.then(logErrorsAndReturnData)
-			.then((data) => {
-				console.log(data);
-				dispatch(
-					getTvShowDetails(
-						data.map(
-							(currentlyWatching) => currentlyWatching.mediaId
-						)
-					)
-				);
-				return data;
-			});
+		return await client.models.Watching.list().then(logErrorsAndReturnData);
 	}
 );
 

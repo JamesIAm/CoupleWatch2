@@ -15,13 +15,11 @@ export type TvShowSkeleton = {
 type SearchState = {
 	results: TvShowSkeleton[];
 	pagesOfSearchResults: number;
-	tvShowDetails: { [key: number]: TvShowDetails };
 };
 
 const initialState: SearchState = {
 	results: [],
 	pagesOfSearchResults: 0,
-	tvShowDetails: {},
 };
 
 export const searchSlice = createSlice({
@@ -53,57 +51,23 @@ export const searchSlice = createSlice({
 			state.pagesOfSearchResults = 0;
 			state.results = [];
 		});
-		builder.addCase(getTvShowDetails.fulfilled, (state, action) => {
-			let emptyMap: { [key: number]: TvShowDetails } = {};
-			state.tvShowDetails = action.payload.reduce((map, obj) => {
-				map[obj.id] = obj;
-				return map;
-			}, emptyMap);
-		});
 	},
-	selectors: {
-		selectTvShowDetails: (state, tvShowId) => state.tvShowDetails[tvShowId],
-	},
+	selectors: {},
 });
 
 const client = generateClient<Schema>();
 
 export const searchTvShow = createAsyncThunk(
 	"search/tv",
-	async (searchTerm: string, { dispatch }) => {
+	async (searchTerm: string) => {
 		return await client.queries
 			.searchTvShows({
 				query: searchTerm,
 			})
-			.then(logErrorsAndReturnData)
-			.then((res) => {
-				const tvShows = res?.results as unknown as TvShow[];
-				dispatch(
-					getTvShowDetails(tvShows.map((show) => String(show.id)))
-				);
-				return res;
-			});
-	}
-);
-export const getTvShowDetails = createAsyncThunk(
-	"search/tv/episodes",
-	async (tvShowIds: string[]) => {
-		console.log("Starting " + tvShowIds);
-
-		return Promise.all(
-			tvShowIds.map((tvShowId) =>
-				client.queries
-					.getTvShowEpisodes({
-						seriesId: tvShowId,
-					})
-					.then(logErrorsAndReturnData)
-					.then((nullableEpisodes) => nullableEpisodes)
-			)
-		);
+			.then(logErrorsAndReturnData);
 	}
 );
 
 export const { clearSearchResults } = searchSlice.actions;
-export const { selectTvShowDetails } = searchSlice.selectors;
 export const selectSearchResults = (state: RootState) => state.search.results;
 export default searchSlice.reducer;
