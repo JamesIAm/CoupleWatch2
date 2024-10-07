@@ -45,7 +45,7 @@ const TvShowAccordionItem = ({
 	const [stopWatchingWith, { isLoading: stopWatchingWithUpdating }] =
 		useStopWatchingWithMutation();
 	const [activePartners, setActivePartners] = useState<Partner[]>([]);
-	const tvShowDetails = useGetTvShowDetailsQuery(data.mediaId);
+	const { data: tvShowDetails } = useGetTvShowDetailsQuery(data.mediaId);
 	useEffect(() => {
 		if (!isWatching) {
 			setActivePartners([]);
@@ -129,17 +129,30 @@ const TvShowAccordionItem = ({
 			.join(", ");
 	};
 
+	const getTvShowName = () => {
+		if (tvShowDetails?.name) {
+			return tvShowDetails.name;
+		}
+		if (!isWatching) {
+			return data.name;
+		}
+		return "";
+	};
+
 	return (
 		<Accordion.Item value={String(data.mediaId)}>
 			<Accordion.Trigger>
-				{tvShowDetails?.data?.name} (
-				{tvShowDetails?.data?.first_air_date?.substring(0, 4)}){" "}
-				{/* {watchRecord.seasonCount} seasons{" "} */}
+				{getTvShowName()}
+				{" ("}
+				{tvShowDetails?.first_air_date?.substring(0, 4) || (
+					<Loader />
+				)}) {tvShowDetails?.number_of_seasons}
+				{" seasons "}
 				{renderPartnersWatchingThisShow()}
 			</Accordion.Trigger>
 
 			<Accordion.Content>
-				{tvShowDetails?.data?.overview}
+				{tvShowDetails?.overview}
 				<br />
 				{renderWatchingInfo()}
 				{isWatching
