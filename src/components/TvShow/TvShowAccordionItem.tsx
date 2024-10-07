@@ -1,13 +1,13 @@
 import {
 	Accordion,
 	Button,
+	Loader,
 	SwitchField,
 	useAuthenticator,
 } from "@aws-amplify/ui-react";
 import { useAppDispatch, useAppSelector } from "../../state/hooks";
 import {
 	addPartnerToRecord,
-	addWatchingRecord,
 	deleteWatchingRecord,
 	removePartnerFromRecord,
 	Watching,
@@ -17,6 +17,7 @@ import { useState, useEffect } from "react";
 import { Partner } from "../Partners/PartnerCard";
 import { TvShowSkeleton } from "../Search/searchSlice";
 import { useGetTvShowDetailsQuery } from "./tvShowDetails";
+import { useStartWatchingMutation } from "../CurrentlyWatching/currentlyWatching";
 
 type Props = {
 	data: TvShowSkeleton;
@@ -25,7 +26,8 @@ type Props = {
 const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
 	const dispatch = useAppDispatch();
 	const partners = useAppSelector((state) => selectPairings(state));
-
+	const [startWatching, { isLoading: startWatchingUpdating }] =
+		useStartWatchingMutation();
 	const tvShowDetails = useGetTvShowDetailsQuery(data.mediaId);
 	const { user } = useAuthenticator((context) => [context.user]);
 	const [activePartners, setActivePartners] = useState<Partner[]>([]);
@@ -80,11 +82,10 @@ const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
 
 	const getButtonsForContentNotBeingWatched = () => (
 		<Button
-			onClick={() =>
-				dispatch(addWatchingRecord({ mediaId: data.mediaId, user }))
-			}
+			onClick={() => startWatching({ mediaId: data.mediaId, user })}
+			isDisabled={startWatchingUpdating}
 		>
-			Start watching
+			{startWatchingUpdating ? <Loader /> : "Start watching"}
 		</Button>
 	);
 
