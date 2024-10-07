@@ -1,10 +1,9 @@
 import { Accordion, ScrollView } from "@aws-amplify/ui-react";
 import TvShowAccordionItem from "./TvShowAccordionItem";
-import { selectCurrentlyWatching } from "../CurrentlyWatching/currentlyWatchingSlice";
-import { useAppSelector } from "../../state/hooks";
 import { Partner } from "../Partners/PartnerCard";
 import React from "react";
 import { TvShowSkeleton } from "../Search/searchSlice";
+import { useGetCurrentlyWatchingQuery } from "../CurrentlyWatching/currentlyWatching";
 
 type Props = {
 	tvShows: TvShowSkeleton[];
@@ -12,8 +11,11 @@ type Props = {
 };
 
 const TvShowAccordion = ({ tvShows, watchingWith }: Props) => {
-	const currentlyWatching = useAppSelector(selectCurrentlyWatching);
+	const { data: currentlyWatching } = useGetCurrentlyWatchingQuery();
 	const getWatchRecords = (tvShow: TvShowSkeleton) => {
+		if (!currentlyWatching) {
+			return [];
+		}
 		let watchRecords = currentlyWatching.filter(
 			(show) => show.mediaId === tvShow.mediaId
 		);

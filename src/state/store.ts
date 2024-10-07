@@ -1,6 +1,5 @@
 import { configureStore } from "@reduxjs/toolkit";
 import pairingReducer from "../components/Partners/pairingsSlice";
-import currentlyWatchingReducer from "../components/CurrentlyWatching/currentlyWatchingSlice";
 import searchReducer from "../components/Search/searchSlice";
 import { tvShowDetailsApi } from "../components/TvShow/tvShowDetails";
 import { currentlyWatchingApi } from "../components/CurrentlyWatching/currentlyWatching";
@@ -10,7 +9,6 @@ import { currentlyWatchingApi } from "../components/CurrentlyWatching/currentlyW
 export const store = configureStore({
 	reducer: {
 		pairings: pairingReducer,
-		currentlyWatching: currentlyWatchingReducer,
 		search: searchReducer,
 		[tvShowDetailsApi.reducerPath]: tvShowDetailsApi.reducer,
 		[currentlyWatchingApi.reducerPath]: currentlyWatchingApi.reducer,
