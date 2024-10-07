@@ -1,23 +1,13 @@
-import {
-	Accordion,
-	Button,
-	Loader,
-	SwitchField,
-	useAuthenticator,
-} from "@aws-amplify/ui-react";
+import { Accordion, Loader } from "@aws-amplify/ui-react";
 import { useAppSelector } from "../../state/hooks";
-import { selectPairings } from "../Partners/pairingsSlice";
+import { Pairing, selectPairings } from "../Partners/pairingsSlice";
 import { useState, useEffect } from "react";
 import { Partner } from "../Partners/PartnerCard";
 import { useGetTvShowDetailsQuery } from "./tvShowDetails";
-import {
-	useStartWatchingMutation,
-	useStartWatchingWithMutation,
-	useStopWatchingMutation,
-	useStopWatchingWithMutation,
-	Watching,
-} from "../CurrentlyWatching/currentlyWatching";
+import { Watching } from "../CurrentlyWatching/currentlyWatching";
 import { TvShowSkeleton } from "../Search/searchSlice";
+import PartnerButtons from "./PartnerButtons";
+import WatchingButtons from "./WatchingButtons";
 
 export type AccordionTvShow =
 	| {
@@ -31,93 +21,36 @@ export type AccordionTvShow =
 type TvShowAccordionItemProps = {
 	data: AccordionTvShow;
 };
-const TvShowAccordionItem = ({
-	data: { isWatching, data },
-}: TvShowAccordionItemProps) => {
+const TvShowAccordionItem = ({ data }: TvShowAccordionItemProps) => {
+	const { isWatching, data: show } = data;
 	const partners = useAppSelector((state) => selectPairings(state));
-	const { user } = useAuthenticator((context) => [context.user]);
-	const [startWatching, { isLoading: startWatchingUpdating }] =
-		useStartWatchingMutation();
-	const [stopWatching, { isLoading: stopWatchingUpdating }] =
-		useStopWatchingMutation();
-	const [startWatchingWith, { isLoading: startWatchingWithUpdating }] =
-		useStartWatchingWithMutation();
-	const [stopWatchingWith, { isLoading: stopWatchingWithUpdating }] =
-		useStopWatchingWithMutation();
 	const [activePartners, setActivePartners] = useState<Partner[]>([]);
-	const { data: tvShowDetails } = useGetTvShowDetailsQuery(data.mediaId);
+	const { data: tvShowDetails } = useGetTvShowDetailsQuery(show.mediaId);
 	useEffect(() => {
 		if (!isWatching) {
 			setActivePartners([]);
 			return;
 		}
 		setActivePartners(
-			partners.filter((partner) => data.with.includes(partner.username))
+			partners.filter((partner: Pairing) =>
+				show.with.includes(partner.username)
+			)
 		);
-	}, [partners, data, setActivePartners, isWatching]);
+	}, [partners, show, setActivePartners, isWatching]);
 
 	const getButtonsForContentBeingWatched = (activeWatchRecord: Watching) => (
 		<>
-			<Button
-				onClick={() => stopWatching(activeWatchRecord)}
-				isDisabled={startWatchingUpdating || stopWatchingUpdating}
-			>
-				{startWatchingUpdating || stopWatchingUpdating ? (
-					<Loader />
-				) : (
-					"Stop watching"
-				)}
-			</Button>
-			{partners.map((pairing) => {
-				const isWatchingThisShowWithCurrentUser =
-					activeWatchRecord.with.includes(pairing.username);
-				const changeRecord = () =>
-					isWatchingThisShowWithCurrentUser
-						? stopWatchingWith({
-								watchRecord: activeWatchRecord,
-								partnerToRemove: pairing,
-						  })
-						: startWatchingWith({
-								watchRecord: activeWatchRecord,
-								partnerToAdd: pairing,
-						  });
-
-				return (
-					<SwitchField
-						key={pairing.username}
-						labelPosition="start"
-						label={pairing.email}
-						isChecked={isWatchingThisShowWithCurrentUser}
-						isDisabled={
-							startWatchingWithUpdating ||
-							stopWatchingWithUpdating
-						}
-						onChange={changeRecord}
-					/>
-				);
-			})}
+			<PartnerButtons watchRecord={activeWatchRecord} />
 		</>
-	);
-	const getButtonsForContentNotBeingWatched = () => (
-		<Button
-			onClick={() => startWatching({ mediaId: data.mediaId, user })}
-			isDisabled={startWatchingUpdating || stopWatchingUpdating}
-		>
-			{startWatchingUpdating || stopWatchingUpdating ? (
-				<Loader />
-			) : (
-				"Start watching"
-			)}
-		</Button>
 	);
 
 	const renderWatchingInfo = () => {
 		if (isWatching) {
 			return (
 				<div>
-					Started: {data.createdAt}
+					Started: {show.createdAt}
 					<br />
-					Last update: {data.updatedAt}
+					Last update: {show.updatedAt}
 				</div>
 			);
 		}
@@ -134,13 +67,13 @@ const TvShowAccordionItem = ({
 			return tvShowDetails.name;
 		}
 		if (!isWatching) {
-			return data.name;
+			return show.name;
 		}
 		return "";
 	};
 
 	return (
-		<Accordion.Item value={String(data.mediaId)}>
+		<Accordion.Item value={String(show.mediaId)}>
 			<Accordion.Trigger>
 				{getTvShowName()}
 				{" ("}
@@ -155,9 +88,8 @@ const TvShowAccordionItem = ({
 				{tvShowDetails?.overview}
 				<br />
 				{renderWatchingInfo()}
-				{isWatching
-					? getButtonsForContentBeingWatched(data)
-					: getButtonsForContentNotBeingWatched()}
+				<WatchingButtons data={data} />
+				{isWatching ? getButtonsForContentBeingWatched(show) : <></>}
 			</Accordion.Content>
 		</Accordion.Item>
 	);

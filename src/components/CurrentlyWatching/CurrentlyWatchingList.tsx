@@ -62,10 +62,7 @@ const CurrentlyWatchingList = ({}: Props) => {
 			{isLoading ? (
 				<Loader />
 			) : currentlyWatching ? (
-				<TvShowAccordion
-					tvShows={getTvShowsForCurrentFilters()}
-					watchingWith={watchingWith ? [watchingWith] : watchingWith}
-				/>
+				<TvShowAccordion tvShows={getTvShowsForCurrentFilters()} />
 			) : (
 				<></>
 			)}
