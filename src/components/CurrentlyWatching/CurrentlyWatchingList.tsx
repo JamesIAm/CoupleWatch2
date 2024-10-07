@@ -1,24 +1,17 @@
-import { Tabs } from "@aws-amplify/ui-react";
-import { useAppDispatch, useAppSelector } from "../../state/hooks";
+import { Loader, Tabs } from "@aws-amplify/ui-react";
+import { useAppSelector } from "../../state/hooks";
 import { selectPairings } from "../Partners/pairingsSlice";
 import TvShowAccordion from "./TvShow/TvShowAccordion";
-import {
-	selectCurrentlyWatching,
-	updateCurrentlyWatching,
-} from "./currentlyWatchingSlice";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Partner } from "../Partners/PartnerCard";
+import { useGetCurrentlyWatchingQuery } from "./currentlyWatching";
 
 type Props = {};
 const CurrentlyWatchingList = ({}: Props) => {
-	const currentlyWatching = useAppSelector(selectCurrentlyWatching);
-	const dispatch = useAppDispatch();
+	const { data, isLoading } = useGetCurrentlyWatchingQuery();
+	const currentlyWatching = data;
 	const pairings = useAppSelector(selectPairings);
 	const [tab, setTab] = useState<Partner | undefined>(undefined);
-	useEffect(() => {
-		console.log("asd");
-		dispatch(updateCurrentlyWatching);
-	}, []);
 
 	console.log(currentlyWatching);
 	return (
@@ -45,10 +38,16 @@ const CurrentlyWatchingList = ({}: Props) => {
 					}),
 				]}
 			/>
-			<TvShowAccordion
-				tvShows={[...currentlyWatching]}
-				watchingWith={tab ? [tab] : tab}
-			/>
+			{isLoading ? (
+				<Loader />
+			) : currentlyWatching ? (
+				<TvShowAccordion
+					tvShows={[...currentlyWatching]}
+					watchingWith={tab ? [tab] : tab}
+				/>
+			) : (
+				<></>
+			)}
 		</div>
 	);
 };
