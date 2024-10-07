@@ -4,7 +4,6 @@ import { generateClient } from "aws-amplify/api";
 import { Schema } from "../../../amplify/data/resource";
 import { Pairing } from "../Partners/pairingsSlice";
 import { logErrorsAndReturnData } from "../../utils/ClientUtils";
-import { AuthUser } from "aws-amplify/auth";
 
 // Define a type for the slice state
 export interface CurrentlyWatchingState {
@@ -42,12 +41,6 @@ export const currentlyWatchingSlice = createSlice({
 	reducers: {},
 	extraReducers: (builder) => {
 		builder
-			.addCase(addWatchingRecord.fulfilled, (state, action) => {
-				state.currentlyWatching = [
-					...state.currentlyWatching,
-					action.payload,
-				];
-			})
 			.addCase(deleteWatchingRecord.fulfilled, (state, action) => {
 				state.currentlyWatching = state.currentlyWatching.filter(
 					(currentlyWatching) =>
@@ -120,17 +113,6 @@ export const currentlyWatchingSlice = createSlice({
 });
 
 const client = generateClient<Schema>();
-
-export const addWatchingRecord = createAsyncThunk(
-	"currentlyWatching/add",
-	async ({ mediaId, user }: { mediaId: string; user: AuthUser }) => {
-		return client.models.Watching.create({
-			mediaId: mediaId,
-			with: [user.username],
-			usersSortedConcatenated: user.username,
-		}).then(logErrorsAndReturnData);
-	}
-);
 
 export const deleteWatchingRecord = createAsyncThunk(
 	"currentlyWatching/delete",

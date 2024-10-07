@@ -23,3 +23,19 @@ export const logErrorsAndReturnData = <Type>(
 	}
 	throw new Error("No data or errors");
 };
+
+export const logErrorsAndReturnDataAndErrors = <Type>({
+	data,
+	errors,
+}: AwsResponse<Type>) => {
+	if (data) {
+		return { data };
+	}
+	if (errors) {
+		errors.forEach((error) => {
+			console.error(error);
+		});
+		return { error: errors };
+	}
+	return { error: "no data or errors" };
+};
