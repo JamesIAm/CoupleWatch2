@@ -42,18 +42,6 @@ export const currentlyWatchingSlice = createSlice({
 	reducers: {},
 	extraReducers: (builder) => {
 		builder
-			.addCase(updateCurrentlyWatching.pending, (state, _action) => {
-				state.status = "pending";
-			})
-			.addCase(updateCurrentlyWatching.fulfilled, (state, action) => {
-				state.status = "succeeded";
-				// Add any fetched posts to the array
-				state.currentlyWatching = action.payload;
-			})
-			.addCase(updateCurrentlyWatching.rejected, (state, action) => {
-				state.status = "failed";
-				state.error = action.error.message ?? "Unknown Error";
-			})
 			.addCase(addWatchingRecord.fulfilled, (state, action) => {
 				state.currentlyWatching = [
 					...state.currentlyWatching,
@@ -132,14 +120,6 @@ export const currentlyWatchingSlice = createSlice({
 });
 
 const client = generateClient<Schema>();
-
-export const updateCurrentlyWatching = createAsyncThunk(
-	"currentlyWatching/update",
-	async () => {
-		console.log("Getting a list of shows currently being watched");
-		return await client.models.Watching.list().then(logErrorsAndReturnData);
-	}
-);
 
 export const addWatchingRecord = createAsyncThunk(
 	"currentlyWatching/add",
