@@ -15,7 +15,8 @@ import {
 import { selectPairings } from "../Partners/pairingsSlice";
 import { useState, useEffect } from "react";
 import { Partner } from "../Partners/PartnerCard";
-import { selectTvShowDetails, TvShowSkeleton } from "../Search/searchSlice";
+import { TvShowSkeleton } from "../Search/searchSlice";
+import { useGetTvShowDetailsQuery } from "./tvShowDetails";
 
 type Props = {
 	data: TvShowSkeleton;
@@ -24,9 +25,8 @@ type Props = {
 const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
 	const dispatch = useAppDispatch();
 	const partners = useAppSelector((state) => selectPairings(state));
-	const tvShowDetails = useAppSelector((state) =>
-		selectTvShowDetails(state, data.mediaId)
-	);
+
+	const tvShowDetails = useGetTvShowDetailsQuery(data.mediaId);
 	const { user } = useAuthenticator((context) => [context.user]);
 	const [activePartners, setActivePartners] = useState<Partner[]>([]);
 	useEffect(() => {
@@ -114,7 +114,7 @@ const TvShowAccordionItem = ({ data, watchRecord }: Props) => {
 			</Accordion.Trigger>
 
 			<Accordion.Content>
-				{tvShowDetails?.overview}
+				{tvShowDetails?.currentData?.overview}
 				<br />
 				{renderWatchingInfo()}
 				{watchRecord

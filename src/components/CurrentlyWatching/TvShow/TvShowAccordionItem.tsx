@@ -9,7 +9,7 @@ import {
 import { selectPairings } from "../../Partners/pairingsSlice";
 import { useState, useEffect } from "react";
 import { Partner } from "../../Partners/PartnerCard";
-import { selectTvShowDetails } from "../../Search/searchSlice";
+import { useGetTvShowDetailsQuery } from "../../TvShow/tvShowDetails";
 
 type Props = {
 	data: Watching;
@@ -18,9 +18,7 @@ const TvShowAccordionItem = ({ data }: Props) => {
 	const dispatch = useAppDispatch();
 	const partners = useAppSelector((state) => selectPairings(state));
 	const [activePartners, setActivePartners] = useState<Partner[]>([]);
-	const tvShowDetails = useAppSelector((state) =>
-		selectTvShowDetails(state, data.mediaId)
-	);
+	const tvShowDetails = useGetTvShowDetailsQuery(data.mediaId);
 	useEffect(() => {
 		setActivePartners(
 			partners.filter((partner) => data.with.includes(partner.username))
@@ -87,14 +85,14 @@ const TvShowAccordionItem = ({ data }: Props) => {
 	return (
 		<Accordion.Item value={String(data.mediaId)}>
 			<Accordion.Trigger>
-				{tvShowDetails.name} (
-				{tvShowDetails.first_air_date?.substring(0, 4)}){" "}
+				{tvShowDetails?.data?.name} (
+				{tvShowDetails?.data?.first_air_date?.substring(0, 4)}){" "}
 				{/* {watchRecord.seasonCount} seasons{" "} */}
 				{renderPartnersWatchingThisShow()}
 			</Accordion.Trigger>
 
 			<Accordion.Content>
-				{tvShowDetails?.overview}
+				{tvShowDetails?.data?.overview}
 				<br />
 				{renderWatchingInfo()}
 				{getButtonsForContentBeingWatched(data)}
