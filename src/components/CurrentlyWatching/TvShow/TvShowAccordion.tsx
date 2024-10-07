@@ -27,10 +27,7 @@ const TvShowAccordion = ({ tvShows, watchingWith }: Props) => {
 		<ScrollView height="20vh">
 			<Accordion.Container>
 				{getTvShowsForCurrentFilters().map((show) => (
-					<TvShowAccordionItem
-						data={show}
-						key={`${show.mediaId}-${show.usersSortedConcatenated}`}
-					/>
+					<TvShowAccordionItem data={show} key={show.id} />
 				))}
 			</Accordion.Container>
 		</ScrollView>
