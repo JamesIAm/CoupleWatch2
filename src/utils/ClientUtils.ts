@@ -12,7 +12,6 @@ type AwsError = {
 export const logErrorsAndReturnData = <Type>(
 	result: AwsResponse<Type>
 ): Type => {
-	console.log(result);
 	if (result.data) {
 		return result.data;
 	}

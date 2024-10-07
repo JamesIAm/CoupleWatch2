@@ -6,7 +6,6 @@ type Props = {};
 
 const PartnerList = ({}: Props) => {
 	const currentPairings = useAppSelector(selectPairings);
-	console.log(currentPairings);
 	return (
 		<div>
 			<h1>Current Pairings</h1>

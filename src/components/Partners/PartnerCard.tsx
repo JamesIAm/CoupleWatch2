@@ -24,7 +24,6 @@ const PartnerCard = ({ partner }: Props) => {
 	const isLocked = useAppSelector((state) =>
 		selectPartnerChangeLock(state, partner)
 	);
-	console.log(currentPairing);
 	return (
 		<Card>
 			{partner.email}
