@@ -20,7 +20,7 @@ const schema = a.schema({
 	Pairing: a
 		.model({
 			members: a.string().array().required(),
-			memberInfo: a.ref("Partner").array().required(),
+			memberInfo: a.ref("Partner").required().array().required(),
 		})
 		.authorization((allow) => [allow.ownersDefinedIn("members")]),
 

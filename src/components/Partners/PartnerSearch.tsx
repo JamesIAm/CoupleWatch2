@@ -1,73 +1,32 @@
-import {
-	Card,
-	Placeholder,
-	SearchField,
-	useAuthenticator,
-} from "@aws-amplify/ui-react";
-import { generateClient } from "aws-amplify/api";
-import { Schema } from "../../../amplify/data/resource";
+import { Card, Placeholder, SearchField } from "@aws-amplify/ui-react";
 import { useState } from "react";
-import PartnerCard, { Partner } from "./PartnerCard";
+import PartnerCard from "./PartnerCard";
+import { useSearchPartnerQuery } from "./partnerSearch";
 
 type Props = {};
-type SearchState = "idle" | "searching" | "notFound" | "found";
-type SearchedPartner = {
-	state: SearchState;
-	partner?: Partner;
-};
-
-const client = generateClient<Schema>();
 
 const PartnerSearch = ({}: Props) => {
-	const [searchedPartner, setSearchedPartner] = useState<SearchedPartner>({
-		state: "idle",
-	});
+	const [searchTerm, setSearchTerm] = useState<string>("");
 
-	const { user } = useAuthenticator((context) => [context.user]);
-	const searchForUser = (email: string) => {
-		setSearchedPartner({ state: "searching" });
-		client.queries.searchUser({ email: email }).then((res) => {
-			if (res.errors) {
-				setSearchedPartner({ state: "idle" });
-				throw new Error(res.errors[0].message);
-			}
-			if (res.data) {
-				setSearchedPartner({
-					state: "found",
-					partner: { email: email, username: res.data },
-				});
-			} else {
-				setSearchedPartner({ state: "notFound" });
-			}
-		});
-	};
+	const { data: searchedPartner, isFetching } =
+		useSearchPartnerQuery(searchTerm);
 
 	const renderSearchedPartner = () => {
 		{
-			if (searchedPartner.state === "searching") {
+			if (isFetching) {
 				return <Placeholder size="large" />;
 			}
-			if (searchedPartner.state === "idle") {
+			if (!searchTerm) {
 				return <></>;
 			}
-			if (
-				searchedPartner.state === "notFound" ||
-				searchedPartner?.partner?.username === user.username
-			) {
+			if (!searchedPartner) {
 				return (
 					<Card>
 						Not found, ensure you search by their full email address
 					</Card>
 				);
 			}
-			if (!searchedPartner.partner) {
-				throw new Error(
-					"Invalid state combination, seached partner state is " +
-						searchedPartner.state +
-						", and seachedPartner is undefined"
-				);
-			}
-			return <PartnerCard partner={searchedPartner.partner} />;
+			return <PartnerCard partner={searchedPartner} />;
 		}
 	};
 
@@ -78,9 +37,9 @@ const PartnerSearch = ({}: Props) => {
 				label="Find a partner"
 				placeholder="example@gmail.com"
 				hasSearchIcon={true}
-				onSubmit={(searchTerm) => searchForUser(searchTerm)}
-				onClear={() => setSearchedPartner({ state: "idle" })}
-				onChange={() => setSearchedPartner({ state: "idle" })}
+				onSubmit={(searchTerm) => setSearchTerm(searchTerm)}
+				onClear={() => setSearchTerm("")}
+				onChange={() => setSearchTerm("")}
 			/>
 			{renderSearchedPartner()}
 		</div>
