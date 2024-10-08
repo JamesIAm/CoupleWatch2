@@ -1,48 +1,37 @@
-import { Card, Loader, Button, useAuthenticator } from "@aws-amplify/ui-react";
+import { Card, Loader, Button } from "@aws-amplify/ui-react";
+import { Partner } from "./partnerSearch";
 import {
-	addPartner,
-	removePartner,
-	selectPairing,
-	selectPartnerChangeLock,
-} from "./pairingsSlice";
-import { useAppDispatch, useAppSelector } from "../../state/hooks";
+	useAddPairingMutation,
+	useGetAllPairingsQuery,
+	useDeletePairingMutation,
+} from "./pairing";
 
-export type Partner = {
-	email: string;
-	username: string;
-};
 type Props = {
 	partner: Partner;
 };
 
 const PartnerCard = ({ partner }: Props) => {
-	const dispatch = useAppDispatch();
-	const { user } = useAuthenticator((context) => [context.user]);
-	const currentPairing = useAppSelector((state) =>
-		selectPairing(state, partner)
-	);
-	const isLocked = useAppSelector((state) =>
-		selectPartnerChangeLock(state, partner)
-	);
+	const [addPairing, { isLoading: isAdding }] = useAddPairingMutation();
+	const [removePairing, { isLoading: isRemoving }] =
+		useDeletePairingMutation();
+	const { currentPairing } = useGetAllPairingsQuery(undefined, {
+		selectFromResult: ({ data }) => ({
+			currentPairing: data?.find(
+				(pairing) => pairing.otherUser.username === partner.username
+			),
+		}),
+	});
 	return (
 		<Card>
 			{partner.email}
-			{isLocked ? (
+			{isAdding || isRemoving ? (
 				<Loader />
 			) : currentPairing ? (
-				<Button
-					onClick={() =>
-						dispatch(
-							removePartner({ pairing: currentPairing, user })
-						)
-					}
-				>
+				<Button onClick={() => removePairing(currentPairing.pairing)}>
 					Remove
 				</Button>
 			) : (
-				<Button onClick={() => dispatch(addPartner({ partner, user }))}>
-					Add
-				</Button>
+				<Button onClick={() => addPairing(partner)}>Add</Button>
 			)}
 		</Card>
 	);

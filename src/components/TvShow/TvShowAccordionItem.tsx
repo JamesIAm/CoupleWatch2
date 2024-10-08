@@ -1,13 +1,12 @@
 import { Accordion, Loader } from "@aws-amplify/ui-react";
-import { useAppSelector } from "../../state/hooks";
-import { Pairing, selectPairings } from "../Partners/pairingsSlice";
 import { useState, useEffect } from "react";
-import { Partner } from "../Partners/PartnerCard";
 import { useGetTvShowDetailsQuery } from "./tvShowDetails";
 import { Watching } from "../CurrentlyWatching/currentlyWatching";
 import PartnerButtons from "./PartnerButtons";
 import WatchingButtons from "./WatchingButtons";
 import { TvShowSkeleton } from "../Search/searchResults";
+import { Partner } from "../Partners/partnerSearch";
+import { useGetAllPairingsQuery } from "../Partners/pairing";
 
 export type AccordionTvShow =
 	| {
@@ -23,20 +22,22 @@ type TvShowAccordionItemProps = {
 };
 const TvShowAccordionItem = ({ data }: TvShowAccordionItemProps) => {
 	const { isWatching, data: show } = data;
-	const partners = useAppSelector((state) => selectPairings(state));
 	const [activePartners, setActivePartners] = useState<Partner[]>([]);
+	const { data: pairings } = useGetAllPairingsQuery();
 	const { data: tvShowDetails } = useGetTvShowDetailsQuery(show.mediaId);
 	useEffect(() => {
-		if (!isWatching) {
+		if (!isWatching || !pairings) {
 			setActivePartners([]);
 			return;
 		}
 		setActivePartners(
-			partners.filter((partner: Pairing) =>
-				show.with.includes(partner.username)
+			pairings.flatMap((pairing) =>
+				show.with.includes(pairing.otherUser.username)
+					? pairing.otherUser
+					: []
 			)
 		);
-	}, [partners, show, setActivePartners, isWatching]);
+	}, [show, setActivePartners, isWatching]);
 
 	const getButtonsForContentBeingWatched = (activeWatchRecord: Watching) => (
 		<>

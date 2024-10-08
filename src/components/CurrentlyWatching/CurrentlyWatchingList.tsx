@@ -1,17 +1,16 @@
 import { Loader, Tabs } from "@aws-amplify/ui-react";
-import { useAppSelector } from "../../state/hooks";
-import { selectPairings } from "../Partners/pairingsSlice";
 import TvShowAccordion from "../TvShow/TvShowAccordion";
 import { useState } from "react";
-import { Partner } from "../Partners/PartnerCard";
 import { useGetCurrentlyWatchingQuery } from "./currentlyWatching";
 import { AccordionTvShow } from "../TvShow/TvShowAccordionItem";
+import { useGetAllPairingsQuery } from "../Partners/pairing";
+import { Partner } from "../Partners/partnerSearch";
 
 type Props = {};
 const CurrentlyWatchingList = ({}: Props) => {
 	const { data: currentlyWatching, isLoading } =
 		useGetCurrentlyWatchingQuery();
-	const pairings = useAppSelector(selectPairings);
+	const { data: pairings } = useGetAllPairingsQuery();
 	const [watchingWith, setWatchingWith] = useState<Partner | undefined>(
 		undefined
 	);
@@ -40,7 +39,9 @@ const CurrentlyWatchingList = ({}: Props) => {
 				onValueChange={(tab) => {
 					if (tab === "All") setWatchingWith(undefined);
 					setWatchingWith(
-						pairings.find((pairing) => pairing.email === tab)
+						pairings?.find(
+							(pairing) => pairing.otherUser.email === tab
+						)?.otherUser || undefined
 					);
 				}}
 				value={watchingWith ? watchingWith.email : "All"}
@@ -50,13 +51,13 @@ const CurrentlyWatchingList = ({}: Props) => {
 						value: "All",
 						content: <></>,
 					},
-					...pairings.map((partner) => {
+					...(pairings?.map((pairing) => {
 						return {
-							label: partner.email,
-							value: partner.email,
+							label: pairing.otherUser.email,
+							value: pairing.otherUser.email,
 							content: <></>,
 						};
-					}),
+					}) || []),
 				]}
 			/>
 			{isLoading ? (

@@ -6,7 +6,7 @@ import {
 	logErrorsAndReturnData,
 	logErrorsAndReturnDataAndErrors,
 } from "../../utils/ClientUtils";
-import { Pairing } from "../Partners/pairingsSlice";
+import { Partner } from "../Partners/partnerSearch";
 
 const client = generateClient<Schema>();
 
@@ -65,7 +65,7 @@ export const currentlyWatchingApi = createApi({
 		}),
 		startWatchingWith: builder.mutation<
 			Watching,
-			{ watchRecord: Watching; partnerToAdd: Pairing }
+			{ watchRecord: Watching; partnerToAdd: Partner }
 		>({
 			queryFn: async ({
 				watchRecord,
@@ -88,7 +88,7 @@ export const currentlyWatchingApi = createApi({
 		}),
 		stopWatchingWith: builder.mutation<
 			Watching,
-			{ watchRecord: Watching; partnerToRemove: Pairing }
+			{ watchRecord: Watching; partnerToRemove: Partner }
 		>({
 			queryFn: async ({
 				watchRecord,

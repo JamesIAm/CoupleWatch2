@@ -1,17 +1,19 @@
-import { useAppSelector } from "../../state/hooks";
-import { selectPairings } from "./pairingsSlice";
 import PartnerCard from "./PartnerCard";
-
+import { useGetAllPairingsQuery } from "./pairing";
 type Props = {};
 
 const PartnerList = ({}: Props) => {
-	const currentPairings = useAppSelector(selectPairings);
+	const { data: currentPairings } = useGetAllPairingsQuery();
+
 	return (
 		<div>
 			<h1>Current Pairings</h1>
-			{currentPairings.map((pairing) => (
-				<PartnerCard key={pairing.pairingId} partner={pairing} />
-			))}
+			{currentPairings?.map((pairing) => {
+				const partner = pairing.otherUser;
+				return (
+					<PartnerCard key={pairing.pairing.id} partner={partner} />
+				);
+			})}
 		</div>
 	);
 };
