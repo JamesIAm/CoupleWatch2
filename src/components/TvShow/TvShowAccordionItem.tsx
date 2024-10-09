@@ -7,6 +7,7 @@ import WatchingButtons from "./WatchingButtons";
 import { TvShowSkeleton } from "../Search/searchResults";
 import { Partner } from "../Partners/partnerSearch";
 import { useGetAllPairingsQuery } from "../Partners/pairing";
+import EpisodeSelection from "./EpisodeSelection";
 
 export type AccordionTvShow =
 	| {
@@ -38,12 +39,6 @@ const TvShowAccordionItem = ({ data }: TvShowAccordionItemProps) => {
 			)
 		);
 	}, [show, setActivePartners, isWatching]);
-
-	const getButtonsForContentBeingWatched = (activeWatchRecord: Watching) => (
-		<>
-			<PartnerButtons watchRecord={activeWatchRecord} />
-		</>
-	);
 
 	const renderWatchingInfo = () => {
 		if (isWatching) {
@@ -90,7 +85,11 @@ const TvShowAccordionItem = ({ data }: TvShowAccordionItemProps) => {
 				<br />
 				{renderWatchingInfo()}
 				<WatchingButtons data={data} />
-				{isWatching ? getButtonsForContentBeingWatched(show) : <></>}
+				{isWatching ? <PartnerButtons watchRecord={show} /> : <></>}
+				<EpisodeSelection
+					tvShowDetails={tvShowDetails}
+					isWatching={isWatching}
+				/>
 			</Accordion.Content>
 		</Accordion.Item>
 	);

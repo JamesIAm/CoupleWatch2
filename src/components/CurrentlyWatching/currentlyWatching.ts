@@ -1,7 +1,7 @@
 import { createApi, fakeBaseQuery } from "@reduxjs/toolkit/query/react";
 import { generateClient } from "aws-amplify/api";
 import { Schema } from "../../../amplify/data/resource";
-import { AuthUser } from "aws-amplify/auth";
+import { getCurrentUser } from "aws-amplify/auth";
 import {
 	logErrorsAndReturnData,
 	logErrorsAndReturnDataAndErrors,
@@ -29,12 +29,10 @@ export const currentlyWatchingApi = createApi({
 			},
 			providesTags: (_result) => [{ type: "WatchRecord", id: "LIST" }],
 		}),
-		startWatching: builder.mutation<
-			Watching,
-			{ mediaId: string; user: AuthUser }
-		>({
-			queryFn: async ({ mediaId, user }) => {
+		startWatching: builder.mutation<Watching, string>({
+			queryFn: async (mediaId) => {
 				try {
+					const user = await getCurrentUser();
 					const response = await client.models.Watching.create({
 						mediaId: mediaId,
 						with: [user.username],
