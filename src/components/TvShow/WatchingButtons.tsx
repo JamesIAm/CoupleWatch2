@@ -1,4 +1,4 @@
-import { Button, useAuthenticator } from "@aws-amplify/ui-react";
+import { Button } from "@aws-amplify/ui-react";
 import {
 	useGetCurrentlyWatchingQuery,
 	useStartWatchingMutation,
@@ -38,12 +38,11 @@ const StartWatchingButton = ({
 	mediaId,
 	currentlyWatchingIsLoading,
 }: StartWatchingProps) => {
-	const { user } = useAuthenticator((context) => [context.user]);
 	const [startWatching, { isLoading: startWatchingUpdating }] =
 		useStartWatchingMutation();
 	return (
 		<Button
-			onClick={() => startWatching({ mediaId, user })}
+			onClick={() => startWatching(mediaId)}
 			isDisabled={startWatchingUpdating || currentlyWatchingIsLoading}
 		>
 			Start watching
