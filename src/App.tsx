@@ -21,8 +21,16 @@ function App() {
 										label: "Tv Shows",
 										content: (
 											<>
-												<Search />
 												<CurrentlyWatchingList />
+											</>
+										),
+									},
+									{
+										value: "search",
+										label: "Search",
+										content: (
+											<>
+												<Search />
 											</>
 										),
 									},
