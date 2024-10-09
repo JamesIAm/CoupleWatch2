@@ -14,6 +14,8 @@ const schema = a.schema({
 		.model({
 			mediaId: a.string().required(),
 			with: a.string().array().required(),
+			season: a.integer(),
+			episode: a.integer(),
 		})
 		.authorization((allow) => [allow.ownersDefinedIn("with")]),
 

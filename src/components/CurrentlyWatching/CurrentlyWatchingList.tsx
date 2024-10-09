@@ -1,7 +1,7 @@
 import { Loader, Tabs } from "@aws-amplify/ui-react";
 import TvShowAccordion from "../TvShow/TvShowAccordion";
 import { useState } from "react";
-import { useGetCurrentlyWatchingQuery } from "./currentlyWatching";
+import { useGetAllCurrentlyWatchingQuery } from "./currentlyWatching";
 import { AccordionTvShow } from "../TvShow/TvShowAccordionItem";
 import { useGetAllPairingsQuery } from "../Partners/pairing";
 import { Partner } from "../Partners/partnerSearch";
@@ -9,7 +9,7 @@ import { Partner } from "../Partners/partnerSearch";
 type Props = {};
 const CurrentlyWatchingList = ({}: Props) => {
 	const { data: currentlyWatching, isLoading } =
-		useGetCurrentlyWatchingQuery();
+		useGetAllCurrentlyWatchingQuery();
 	const { data: pairings } = useGetAllPairingsQuery();
 	const [watchingWith, setWatchingWith] = useState<Partner | undefined>(
 		undefined

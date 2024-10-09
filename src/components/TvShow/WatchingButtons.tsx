@@ -1,6 +1,6 @@
 import { Button } from "@aws-amplify/ui-react";
 import {
-	useGetCurrentlyWatchingQuery,
+	useGetAllCurrentlyWatchingQuery,
 	useStartWatchingMutation,
 	useStopWatchingMutation,
 } from "../CurrentlyWatching/currentlyWatching";
@@ -12,7 +12,7 @@ type WatchingButtonProps = {
 
 const WatchingButtons = ({ data }: WatchingButtonProps) => {
 	const { isFetching: currentlyWatchingIsLoading } =
-		useGetCurrentlyWatchingQuery();
+		useGetAllCurrentlyWatchingQuery();
 	if (data.isWatching) {
 		return (
 			<StopWatchingButton

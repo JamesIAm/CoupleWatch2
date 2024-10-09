@@ -1,19 +1,27 @@
+import {
+	useGetCurrentlyWatchingQuery,
+	useSetEpisodeMutation,
+} from "../CurrentlyWatching/currentlyWatching";
 import { TvShowDetails } from "./tvShowDetails";
 import { Button } from "@aws-amplify/ui-react";
 
-type Props = { tvShowDetails: TvShowDetails | undefined; isWatching: boolean };
+type Props = {
+	tvShowDetails: TvShowDetails | undefined;
+	currentlyWatchingId: string | undefined;
+};
 
-const EpisodeSelection = ({ tvShowDetails, isWatching }: Props) => {
+const EpisodeSelection = ({ tvShowDetails, currentlyWatchingId }: Props) => {
 	return (
 		<div>
 			EpisodeSelection
-			{tvShowDetails?.seasons?.map((season) => {
+			{tvShowDetails?.seasons?.map((season, seasonIndex) => {
 				return (
 					<div key={season.id}>
 						<h2>{season.name}</h2>
 						<EpisodeButtons
 							episodeCount={season.episode_count || 0}
-							isWatching={isWatching}
+							seasonIndex={seasonIndex}
+							currentlyWatchingId={currentlyWatchingId}
 						/>
 					</div>
 				);
@@ -23,20 +31,46 @@ const EpisodeSelection = ({ tvShowDetails, isWatching }: Props) => {
 };
 type EpisodeButtonProps = {
 	episodeCount: number;
-	isWatching: boolean;
+	seasonIndex: number;
+	currentlyWatchingId: string | undefined;
 };
-const EpisodeButtons = ({ episodeCount, isWatching }: EpisodeButtonProps) => {
+const EpisodeButtons = ({
+	episodeCount,
+	seasonIndex,
+	currentlyWatchingId,
+}: EpisodeButtonProps) => {
 	let episodeNumbers = [];
 	for (let i = 1; i <= episodeCount; i++) {
 		episodeNumbers.push(i);
 	}
+	const { data: currentlyWatchingData } =
+		useGetCurrentlyWatchingQuery(currentlyWatchingId);
+	const isActiveSeason = currentlyWatchingData?.season === seasonIndex;
+	const [updateEpisode] = useSetEpisodeMutation();
 	return (
 		<>
-			{episodeNumbers.map((episodeIndex) => (
-				<Button disabled={!isWatching} key={episodeIndex}>
-					{episodeIndex}
-				</Button>
-			))}
+			{episodeNumbers.map((episodeIndex) => {
+				const isActiveEpisode =
+					isActiveSeason &&
+					currentlyWatchingData?.episode === episodeIndex;
+				return (
+					<Button
+						disabled={!currentlyWatchingData || isActiveEpisode}
+						key={episodeIndex}
+						onClick={() => {
+							if (currentlyWatchingData) {
+								updateEpisode({
+									watchRecord: currentlyWatchingData,
+									season: seasonIndex,
+									episode: episodeIndex,
+								});
+							}
+						}}
+					>
+						{episodeIndex}
+					</Button>
+				);
+			})}
 		</>
 	);
 };
