@@ -18,7 +18,7 @@ export const currentlyWatchingApi = createApi({
 	baseQuery: fakeBaseQuery(),
 	tagTypes: ["WatchRecord"],
 	endpoints: (builder) => ({
-		getCurrentlyWatching: builder.query<CurrentlyWatchingList, void>({
+		getAllCurrentlyWatching: builder.query<CurrentlyWatchingList, void>({
 			queryFn: async () => {
 				try {
 					const response = await client.models.Watching.list();
@@ -27,7 +27,38 @@ export const currentlyWatchingApi = createApi({
 					return { error };
 				}
 			},
-			providesTags: (_result) => [{ type: "WatchRecord", id: "LIST" }],
+			providesTags: (result) => {
+				if (result) {
+					return [
+						...result.map(
+							({ id }) =>
+								({
+									type: "WatchRecord",
+									id,
+								} as const)
+						),
+						{ type: "WatchRecord", id: "LIST" },
+					];
+				} else {
+					return [{ type: "WatchRecord", id: "LIST" }];
+				}
+			},
+		}),
+		getCurrentlyWatching: builder.query<Watching, string | undefined>({
+			queryFn: async (id) => {
+				if (id === undefined) {
+					return { data: undefined };
+				}
+				try {
+					const response = await client.models.Watching.get({ id });
+					return logErrorsAndReturnDataAndErrors(response);
+				} catch (error) {
+					return { error };
+				}
+			},
+			providesTags: (_result, _error, id) => [
+				{ type: "WatchRecord", id },
+			],
 		}),
 		startWatching: builder.mutation<Watching, string>({
 			queryFn: async (mediaId) => {
@@ -109,6 +140,26 @@ export const currentlyWatchingApi = createApi({
 				{ type: "WatchRecord", id: "LIST" },
 			],
 		}),
+		setEpisode: builder.mutation<
+			Watching,
+			{ watchRecord: Watching; season: number; episode: number }
+		>({
+			queryFn: async ({ watchRecord, season, episode }) => {
+				try {
+					const data = await client.models.Watching.update({
+						...watchRecord,
+						season,
+						episode,
+					}).then(logErrorsAndReturnData);
+					return { data };
+				} catch (error) {
+					return { error };
+				}
+			},
+			invalidatesTags: (_result, _error, arg) => [
+				{ type: "WatchRecord", id: arg.watchRecord.id },
+			],
+		}),
 	}),
 });
 
@@ -123,9 +174,11 @@ const updateWatchingRecordWithNewMembers = async (
 };
 
 export const {
+	useGetAllCurrentlyWatchingQuery,
 	useGetCurrentlyWatchingQuery,
 	useStartWatchingMutation,
 	useStopWatchingMutation,
 	useStopWatchingWithMutation,
 	useStartWatchingWithMutation,
+	useSetEpisodeMutation,
 } = currentlyWatchingApi;

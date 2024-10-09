@@ -1,6 +1,6 @@
 import SearchBar from "./SearchBar";
 import { Schema } from "../../../amplify/data/resource";
-import { useGetCurrentlyWatchingQuery } from "../CurrentlyWatching/currentlyWatching";
+import { useGetAllCurrentlyWatchingQuery } from "../CurrentlyWatching/currentlyWatching";
 import { AccordionTvShow } from "../TvShow/TvShowAccordionItem";
 import TvShowAccordion from "../TvShow/TvShowAccordion";
 import { useState } from "react";
@@ -12,7 +12,7 @@ export type TvShow = Schema["TvShow"]["type"];
 const Search = ({}: Props) => {
 	const [searchTerm, setSearchTerm] = useState<string>("");
 	const { data: searchResults } = useSearchQuery(searchTerm);
-	const { data: currentlyWatching } = useGetCurrentlyWatchingQuery();
+	const { data: currentlyWatching } = useGetAllCurrentlyWatchingQuery();
 	const mapTvShowsToCurrentlyWatchingRecords = (): AccordionTvShow[] => {
 		if (!searchResults) {
 			return [];

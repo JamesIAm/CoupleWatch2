@@ -88,7 +88,7 @@ const TvShowAccordionItem = ({ data }: TvShowAccordionItemProps) => {
 				{isWatching ? <PartnerButtons watchRecord={show} /> : <></>}
 				<EpisodeSelection
 					tvShowDetails={tvShowDetails}
-					isWatching={isWatching}
+					currentlyWatchingId={isWatching ? show?.id : undefined}
 				/>
 			</Accordion.Content>
 		</Accordion.Item>
