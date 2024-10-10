@@ -20,7 +20,7 @@ const CurrentlyWatchingCard = ({ watchRecordId }: Props) => {
 	return (
 		<Card>
 			<TvShowImage tvShowDetails={tvShowDetails} />
-			{tvShowDetails.name}
+			{/* {tvShowDetails.name}
 			<br />
 			<SeasonAndEpisodeInfo
 				currentlyWatchingData={currentlyWatchingData}
@@ -29,7 +29,7 @@ const CurrentlyWatchingCard = ({ watchRecordId }: Props) => {
 			<StopWatchingButton
 				watchRecordId={currentlyWatchingData.id}
 				currentlyWatchingIsLoading={false}
-			/>
+			/> */}
 			{/* <EpisodeSelection
 				tvShowDetails={tvShowDetails}
 				currentlyWatchingId={currentlyWatchingData.id}
@@ -39,6 +39,7 @@ const CurrentlyWatchingCard = ({ watchRecordId }: Props) => {
 };
 
 const DetailsMissingPlaceholder = () => {
+	console.log("missing details");
 	return <></>;
 };
 

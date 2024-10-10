@@ -14,6 +14,7 @@ function App() {
 					return (
 						<main>
 							<Tabs
+								className="main-menu"
 								defaultValue="watching"
 								items={[
 									{
