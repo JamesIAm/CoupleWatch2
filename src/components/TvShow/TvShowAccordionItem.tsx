@@ -8,6 +8,7 @@ import { TvShowSkeleton } from "../Search/searchResults";
 import { Partner } from "../Partners/partnerSearch";
 import { useGetAllPairingsQuery } from "../Partners/pairing";
 import EpisodeSelection from "./EpisodeSelection";
+import TvShowImage from "./TvShowImage";
 
 export type AccordionTvShow =
 	| {
@@ -83,6 +84,7 @@ const TvShowAccordionItem = ({ data }: TvShowAccordionItemProps) => {
 			<Accordion.Content>
 				{tvShowDetails?.overview}
 				<br />
+				<TvShowImage tvShowDetails={tvShowDetails} />
 				{renderWatchingInfo()}
 				<WatchingButtons data={data} />
 				{isWatching ? <PartnerButtons watchRecord={show} /> : <></>}
