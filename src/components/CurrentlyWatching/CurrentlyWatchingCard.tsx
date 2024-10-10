@@ -1,9 +1,8 @@
 import { Card } from "@aws-amplify/ui-react";
 import { useGetTvShowDetailsQuery } from "../TvShow/tvShowDetails";
 import TvShowImage from "../TvShow/TvShowImage";
-import { useGetCurrentlyWatchingQuery, Watching } from "./currentlyWatching";
-import { StopWatchingButton } from "../TvShow/WatchingButtons";
-import EpisodeSelection from "../TvShow/EpisodeSelection";
+import { useGetCurrentlyWatchingQuery } from "./currentlyWatching";
+import EpisodeForwardBackwards from "./EpisodeForwardBackwards";
 
 type Props = { watchRecordId: string };
 
@@ -18,8 +17,12 @@ const CurrentlyWatchingCard = ({ watchRecordId }: Props) => {
 		return <DetailsMissingPlaceholder />;
 	}
 	return (
-		<Card>
+		<Card className="currently-watching-card">
 			<TvShowImage tvShowDetails={tvShowDetails} />
+			<EpisodeForwardBackwards
+				tvShowDetails={tvShowDetails}
+				currentlyWatchingId={watchRecordId}
+			/>
 			{/* {tvShowDetails.name}
 			<br />
 			<SeasonAndEpisodeInfo
@@ -39,24 +42,6 @@ const CurrentlyWatchingCard = ({ watchRecordId }: Props) => {
 };
 
 const DetailsMissingPlaceholder = () => {
-	console.log("missing details");
-	return <></>;
-};
-
-const SeasonAndEpisodeInfo = ({
-	currentlyWatchingData,
-}: {
-	currentlyWatchingData: Watching;
-}) => {
-	if (currentlyWatchingData.season && currentlyWatchingData.episode) {
-		return (
-			<>
-				Last watched: S{currentlyWatchingData.season} E
-				{currentlyWatchingData.episode}
-				<br />
-			</>
-		);
-	}
 	return <></>;
 };
 

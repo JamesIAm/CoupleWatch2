@@ -3,7 +3,6 @@ import CurrentlyWatchingCard from "./CurrentlyWatchingCard";
 
 type Props = { watchingIds: string[] };
 const CurrentlyWatchingList = ({ watchingIds }: Props) => {
-	console.log(watchingIds);
 	return (
 		<ScrollView width="100%">
 			<Collection
