@@ -10,8 +10,11 @@ export const tvShowDetailsApi = createApi({
 	reducerPath: "tvShowDetailsApi",
 	baseQuery: fakeBaseQuery(),
 	endpoints: (builder) => ({
-		getTvShowDetails: builder.query<TvShowDetails, string>({
-			queryFn: async (mediaId: string) => {
+		getTvShowDetails: builder.query<TvShowDetails, string | undefined>({
+			queryFn: async (mediaId) => {
+				if (mediaId === undefined) {
+					return { data: undefined };
+				}
 				try {
 					const { data, errors } =
 						await client.queries.getTvShowEpisodes({

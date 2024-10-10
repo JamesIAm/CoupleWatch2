@@ -54,7 +54,7 @@ type StopWatchingProps = {
 	currentlyWatchingIsLoading: boolean;
 };
 
-const StopWatchingButton = ({
+export const StopWatchingButton = ({
 	watchRecordId,
 	currentlyWatchingIsLoading,
 }: StopWatchingProps) => {

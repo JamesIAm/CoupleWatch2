@@ -1,9 +1,9 @@
 import { Authenticator, Tabs } from "@aws-amplify/ui-react";
 import "@aws-amplify/ui-react/styles.css";
 import Search from "./components/Search/Search";
-import CurrentlyWatchingList from "./components/CurrentlyWatching/CurrentlyWatchingList";
 import PartnerManagement from "./components/Partners/PartnerManagement";
 import MovieDbLogo from "./assets/movie_db.svg";
+import CurrentlyWatchingDisplay from "./components/CurrentlyWatching/CurrentlyWatchingDisplay";
 
 function App() {
 	return (
@@ -21,7 +21,7 @@ function App() {
 										label: "Tv Shows",
 										content: (
 											<>
-												<CurrentlyWatchingList />
+												<CurrentlyWatchingDisplay />
 											</>
 										),
 									},
